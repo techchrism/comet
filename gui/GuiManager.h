@@ -1,0 +1,22 @@
+//
+// Created by Techdoodle on 1/18/2019.
+//
+
+#ifndef THEEDITOR_GUIMANAGER_H
+#define THEEDITOR_GUIMANAGER_H
+
+#include "../internal/LinkedList.h"
+#include "GuiFrame.h"
+
+// Manages the "stack" of gui frames and the transitions between them
+class GuiManager
+{
+private:
+    LinkedList<GuiFrame*> frameStack;
+public:
+    void push(GuiFrame* frame);
+    void pop();
+};
+
+
+#endif //THEEDITOR_GUIMANAGER_H
