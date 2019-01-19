@@ -11,8 +11,10 @@
 class GuiMenu : public GuiFrame
 {
 public:
-    void onActivate() override;
-    void setup() override;
+    GuiMenu();
+
+    void handleInput(int code) override;
+    void handleArrow(int code) override;
 };
 
 

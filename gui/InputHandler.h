@@ -9,9 +9,8 @@
 class InputHandler
 {
 public:
-    virtual void handleInput(int code) = 0;
-    virtual void handleArrow(int code) = 0;
-    void onPush();
+    virtual void handleInput(int code) {};
+    virtual void handleArrow(int code) {};
 };
 
 

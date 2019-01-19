@@ -15,10 +15,14 @@ protected:
     void setCursorPos(short x, short y);
 public:
     // Designed to be optionally overridden
-    virtual void onActivate() {};
+    virtual void onActivate()
+    {
+        SetConsoleActiveScreenBuffer(this->screenBuffer);
+    };
+
     void onResize() {};
 
-    virtual void setup() = 0;
+    //virtual void setup() = 0;
 };
 
 #endif //THEEDITOR_GUIFRAME_H

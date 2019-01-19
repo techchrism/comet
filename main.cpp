@@ -8,6 +8,9 @@
 #include <time.h>
 #include <afxres.h>
 #include "internal/OptionsManager.h"
+#include "gui/GuiManager.h"
+#include "gui/elements/GuiBase.h"
+#include "gui/elements/GuiMenu.h"
 
 using namespace std;
 
@@ -97,8 +100,14 @@ int main(void)
     //SetConsoleActiveScreenBuffer(startScreenBuffer);
     return 0;*/
 
-    OptionsManager options;
-
+    //OptionsManager options;
+    GuiManager manager;
+    manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
+    getchar();
+    manager.push(new GuiMenu());
+    getchar();
+    manager.pop();
+    getchar();
 
     return 0;
 }

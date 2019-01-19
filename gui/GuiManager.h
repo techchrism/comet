@@ -14,6 +14,8 @@ class GuiManager
 private:
     LinkedList<GuiFrame*> frameStack;
 public:
+    GuiManager();
+    ~GuiManager();
     void push(GuiFrame* frame);
     void pop();
 };

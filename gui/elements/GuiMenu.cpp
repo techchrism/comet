@@ -5,13 +5,15 @@
 #include <afxres.h>
 #include "GuiMenu.h"
 
-void GuiMenu::onActivate()
+GuiMenu::GuiMenu()
 {
-    SetConsoleActiveScreenBuffer(this->screenBuffer);
-}
+    // Create the console buffer
+    this->screenBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
+                                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                                   NULL,
+                                                   CONSOLE_TEXTMODE_BUFFER,
+                                                   NULL);
 
-void GuiMenu::setup()
-{
     // Hide cursor for menus
     CONSOLE_CURSOR_INFO cursor;
     cursor.bVisible = false;
@@ -31,4 +33,14 @@ void GuiMenu::setup()
     }
 
     WriteConsoleOutput(this->screenBuffer, buffer, bufferSize, bufferCoord, &writeArea);
+}
+
+void GuiMenu::handleArrow(int code)
+{
+
+}
+
+void GuiMenu::handleInput(int code)
+{
+
 }
