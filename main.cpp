@@ -11,6 +11,7 @@
 #include "gui/GuiManager.h"
 #include "gui/elements/GuiBase.h"
 #include "gui/elements/GuiMenu.h"
+#include "gui/elements/GuiMainMenu.h"
 
 using namespace std;
 
@@ -101,8 +102,11 @@ int main(void)
     return 0;*/
 
     //OptionsManager options;
+
+    // Start the GuiManager and add the current screen buffer as the root buffer
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
+    manager.push(new GuiMainMenu());
     getchar();
     manager.push(new GuiMenu());
     getchar();

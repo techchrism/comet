@@ -22,6 +22,11 @@ public:
         this->length = 0;
     }
 
+    ~LinkedList()
+    {
+        this->removeAll();
+    }
+
     LinkedListNode<T>* getStart()
     {
         return this->start;
@@ -132,9 +137,9 @@ public:
             temp = temp->getNext();
         }
 
-        // If the linked list is empty, add this as the first
         if(this->start == nullptr)
         {
+            // If the linked list is empty, add this as the first
             this->start = data;
             this->end = last;
             this->length += count;

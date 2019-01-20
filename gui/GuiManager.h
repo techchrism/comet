@@ -8,6 +8,9 @@
 #include "../internal/LinkedList.h"
 #include "GuiFrame.h"
 
+// Forward definition is needed to resolve mutual dependencies
+class GuiFrame;
+
 // Manages the "stack" of gui frames and the transitions between them
 class GuiManager
 {

@@ -23,7 +23,7 @@ GuiMenu::GuiMenu()
     // Display a 5x5 square of squares
     COORD bufferSize = {5, 5};
     COORD bufferCoord = {0, 0};
-    SMALL_RECT writeArea = {0, 0, 5, 5};
+    SMALL_RECT writeArea = {1, 1, 6, 6};
     CHAR_INFO buffer[5 * 5];
 
     for(int i = 0; i < 5 * 5; i++)

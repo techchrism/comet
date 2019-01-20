@@ -7,22 +7,33 @@
 
 #include <windows.h>
 #include "InputHandler.h"
+#include "GuiManager.h"
+#include <iostream>
+
+using namespace std;
+
+// Forward definition is needed to resolve mutual dependencies
+class GuiManager;
 
 class GuiFrame : public InputHandler
 {
 protected:
+    GuiManager* manager;
     HANDLE screenBuffer;
+
+    // Convenience functions
     void setCursorPos(short x, short y);
+    CHAR_INFO* centerText(string* text, int textLength, int horizontalSize);
+    void writeOutput(short x, short y, CHAR_INFO* text, short columns, short rows);
 public:
     // Designed to be optionally overridden
     virtual void onActivate()
     {
         SetConsoleActiveScreenBuffer(this->screenBuffer);
     };
+    virtual void onResize() {};
 
-    void onResize() {};
-
-    //virtual void setup() = 0;
+    void setManager(GuiManager* manager);
 };
 
 #endif //THEEDITOR_GUIFRAME_H
