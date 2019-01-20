@@ -52,34 +52,23 @@ void GuiVerticalMenu::updateArrows()
     CHAR_INFO bufferLeft[this->optionsLength];
     CHAR_INFO bufferRight[this->optionsLength];
 
-    COORD bufferSize = {1, static_cast<SHORT>(this->optionsLength)};
-    short bottomY = this->leftArrowTop.Y + this->optionsLength - 1;
-    SMALL_RECT writeAreaLeft = {this->leftArrowTop.X, this->leftArrowTop.Y, this->leftArrowTop.X, bottomY};
-    SMALL_RECT writeAreaRight = {this->rightArrowTop.X, this->rightArrowTop.Y, this->rightArrowTop.X, bottomY};
-    //SMALL_RECT writeAreaRight = {0, 0, 0, bottomY};
-
     for(int i = 0; i < this->optionsLength; i++)
     {
         if(i == this->yPos)
         {
             bufferLeft[i].Char.AsciiChar = '>';
-            bufferLeft[i].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-
             bufferRight[i].Char.AsciiChar = '<';
-            bufferRight[i].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
         }
         else
         {
             bufferLeft[i].Char.AsciiChar = ' ';
-            bufferLeft[i].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-
             bufferRight[i].Char.AsciiChar = ' ';
-            bufferRight[i].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
         }
+        bufferRight[i].Attributes = bufferLeft[i].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
     }
 
-    WriteConsoleOutput(this->screenBuffer, bufferLeft, bufferSize, this->leftArrowTop, &writeAreaLeft);
-    WriteConsoleOutput(this->screenBuffer, bufferRight, bufferSize, this->leftArrowTop, &writeAreaRight);
+    writeOutput(leftArrowTop.X, leftArrowTop.Y, bufferLeft, 1, optionsLength);
+    writeOutput(rightArrowTop.X, rightArrowTop.Y, bufferRight, 1, optionsLength);
 }
 
 void GuiVerticalMenu::handleInput(int code)
