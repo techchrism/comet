@@ -12,15 +12,20 @@
 class GuiFrame;
 
 // Manages the "stack" of gui frames and the transitions between them
-class GuiManager
+class GuiManager : public InputHandler
 {
 private:
     LinkedList<GuiFrame*> frameStack;
 public:
     GuiManager();
     ~GuiManager();
+
     void push(GuiFrame* frame);
     void pop();
+    int getLength();
+
+    void handleArrow(int code) override;
+    void handleInput(int code) override;
 };
 
 
