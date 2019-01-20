@@ -18,7 +18,7 @@ GuiManager::~GuiManager()
 void GuiManager::push(GuiFrame* frame)
 {
     this->frameStack.push(frame);
-    //frame->setManager(this);
+    frame->setManager(this);
     frame->onActivate();
 }
 

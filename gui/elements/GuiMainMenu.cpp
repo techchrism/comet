@@ -3,6 +3,7 @@
 //
 
 #include "GuiMainMenu.h"
+#include "GuiMenu.h"
 
 GuiMainMenu::GuiMainMenu()
 {
@@ -19,5 +20,5 @@ GuiMainMenu::GuiMainMenu()
 
 void GuiMainMenu::onOptionSelect(string name, int pos)
 {
-
+    manager->push(new GuiMenu());
 }

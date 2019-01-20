@@ -17,7 +17,6 @@ int main(void)
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
     manager.push(new GuiMainMenu());
-    manager.push(new GuiMenu());
 
     int input = _getch();
     while(true)

@@ -73,6 +73,10 @@ void GuiVerticalMenu::updateArrows()
 
 void GuiVerticalMenu::handleInput(int code)
 {
+    if(code == KEY_ENTER)
+    {
+        onOptionSelect(options[yPos], yPos);
+    }
 }
 
 void GuiVerticalMenu::handleArrow(int code)
