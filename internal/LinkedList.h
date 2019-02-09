@@ -63,6 +63,11 @@ public:
 
     void remove(int pos)
     {
+        this->remove(pos, false, true);
+    }
+
+    void remove(int pos, bool trim, bool del)
+    {
         // Check to make sure there are items to remove
         if(this->length == 0)
         {
@@ -71,6 +76,13 @@ public:
 
         if(pos == 0)
         {
+            if(trim)
+            {
+                this->start = nullptr;
+                this->end = nullptr;
+                this->length = 0;
+            }
+
             // Special case for moving the start pointer
             LinkedListNode<T>* removed = this->start;
             this->start = this->start->getNext();
@@ -95,8 +107,32 @@ public:
                 if(currentPos == (pos - 1))
                 {
                     LinkedListNode<T>* removed = current->getNext();
-                    current->setNext(removed->getNext());
-                    delete removed;
+
+                    if(trim)
+                    {
+                        if(del)
+                        {
+                            // Remove all the other nodes
+                            while(removed != nullptr)
+                            {
+                                LinkedListNode<T>* next = removed->getNext();
+                                delete removed;
+                                removed = next;
+                            }
+                        }
+
+                        current->setNext(nullptr);
+                        length = currentPos + 1;
+                    }
+                    else
+                    {
+                        current->setNext(removed->getNext());
+                        if(del)
+                        {
+                            delete removed;
+                        }
+                        length--;
+                    }
 
                     // If we removed the last element, redirect the end pointer
                     if(current->getNext() == nullptr)
@@ -104,7 +140,6 @@ public:
                         this->end = current;
                     }
 
-                    length--;
                     break;
                 }
 
@@ -113,6 +148,14 @@ public:
             }
             // Note: There are no errors thrown if pos is invalid
         }
+    }
+
+    LinkedListNode<T>* split(int pos)
+    {
+        LinkedListNode<T>* ret;
+        ret = getNode(pos);
+        remove(pos, true, false);
+        return ret;
     }
 
     void add(int pos, T data)
@@ -183,16 +226,21 @@ public:
 
     T get(int pos)
     {
+        return getNode(pos)->getData();
+    }
+
+    LinkedListNode<T>* getNode(int pos)
+    {
         // Optimization for first item
         if(pos == 0)
         {
-            return this->start->getData();
+            return this->start;
         }
 
         // Optimization for last item
         if(pos == (this->length - 1))
         {
-            return this->end->getData();
+            return this->end;
         }
 
         int currentPos = 0;
@@ -201,7 +249,7 @@ public:
         {
             if(currentPos == pos)
             {
-                return current->getData();
+                return current;
             }
 
             currentPos++;

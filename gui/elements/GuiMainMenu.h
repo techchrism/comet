@@ -6,7 +6,7 @@
 #define THEEDITOR_GUIMAINMENU_H
 
 
-#include "GuiVerticalMenu.h"
+#include "components/GuiVerticalMenu.h"
 
 class GuiMainMenu : public GuiVerticalMenu
 {

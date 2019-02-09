@@ -13,6 +13,7 @@
 #define KEY_BACKSPACE 8
 #define KEY_DELETE 127
 #define KEY_ENTER 13
+#define KEY_ESC 27
 
 class InputHandler
 {

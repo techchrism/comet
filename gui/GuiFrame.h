@@ -12,6 +12,8 @@
 
 using namespace std;
 
+#define WHITE_TEXT FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
+
 // Forward definition is needed to resolve mutual dependencies
 class GuiManager;
 

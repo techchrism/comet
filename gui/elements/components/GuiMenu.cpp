@@ -22,17 +22,22 @@ GuiMenu::GuiMenu()
 
     // Display a 5x5 square of squares
     COORD bufferSize = {5, 5};
-    COORD bufferCoord = {0, 0};
-    SMALL_RECT writeArea = {1, 1, 6, 6};
-    CHAR_INFO buffer[5 * 5];
+    CHAR_INFO buffer[1 * 10];
 
-    for(int i = 0; i < 5 * 5; i++)
+    for(int i = 0; i < 1 * 10; i++)
     {
-        buffer[i].Char.AsciiChar = '=';
-        buffer[i].Attributes = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
+        if(i % 2 == 0)
+        {
+        }
+        else
+        {
+            buffer[i].Attributes = WHITE_TEXT;
+            buffer[i].Char.AsciiChar = '=';
+        }
     }
 
-    WriteConsoleOutput(this->screenBuffer, buffer, bufferSize, bufferCoord, &writeArea);
+    writeOutput(0, 0, buffer, 10, 2);
+    //WriteConsoleOutput(this->screenBuffer, buffer, bufferSize, bufferCoord, &writeArea);
 }
 
 void GuiMenu::handleArrow(int code)
