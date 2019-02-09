@@ -14,6 +14,24 @@ void GuiFrame::setManager(GuiManager *manager)
     this->manager = manager;
 }
 
+void GuiFrame::move(short x, short y, short length, short height, short distanceX, short distanceY, char fillch)
+{
+    SMALL_RECT from;
+    from.Top = y;
+    from.Bottom = y + height - 1;
+    from.Left = x;
+    from.Right = x + length - 1;
+
+    COORD to;
+    to.X = x + distanceX;
+    to.Y = y + distanceY;
+
+    CHAR_INFO fill;
+    fill.Attributes = WHITE_TEXT;
+    fill.Char.AsciiChar = fillch;
+    ScrollConsoleScreenBuffer(screenBuffer, &from, nullptr, to, &fill);
+}
+
 CHAR_INFO* GuiFrame::centerText(string *text, int textLength, int horizontalSize)
 {
     CHAR_INFO* textBuffer = new CHAR_INFO[horizontalSize * textLength];

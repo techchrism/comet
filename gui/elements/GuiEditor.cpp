@@ -7,45 +7,97 @@
 
 GuiEditor::GuiEditor()
 {
+    // Set up the buffer
     this->screenBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
                                                    FILE_SHARE_READ | FILE_SHARE_WRITE,
                                                    NULL,
                                                    CONSOLE_TEXTMODE_BUFFER,
                                                    NULL);
     SetConsoleMode(screenBuffer, ENABLE_WINDOW_INPUT | ENABLE_LINE_INPUT);
-    topMargin = 1;
-    leftMargin = 1;
-    SetConsoleCursorPosition(screenBuffer, {leftMargin, topMargin});
-    lines.add(0, new LinkedList<char>);
-    currentLine = lines.get(0);
-
+    //SetConsoleCursorPosition(screenBuffer, {leftMargin, topMargin});
     CONSOLE_SCREEN_BUFFER_INFO buffInfo;
     GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
     this->borderXSize = buffInfo.dwSize.X;
     this->borderYSize = buffInfo.dwSize.Y;
-
+    topMargin = 1;
+    leftMargin = 2;
+    lines.add(0, new LinkedList<char>);
+    currentLine = lines.get(0);
     completeReRender();
 }
 
 void GuiEditor::completeReRender()
 {
     // Write the borders
-    // Bottom/right borders
-    this->resizeBorders(0, 0, borderXSize, borderYSize);
+
+    // Clear the buffer
+    DWORD numChars;
+    FillConsoleOutputCharacter(screenBuffer, ' ', borderXSize * borderYSize, {0, 0}, &numChars);
+    FillConsoleOutputAttribute(screenBuffer, WHITE_TEXT, borderXSize * borderYSize, {0, 0}, &numChars);
+
+    // Draw the borders
+    drawBorders(borderXSize, borderYSize);
+
+    // Iterate through, drawing the lineas we go
+    short lineLength = borderXSize - (leftMargin * 2);
+    short currentLineNumber = 0;
+    CHAR_INFO line[lineLength];
+    LinkedListNode<LinkedList<char>*>* current = lines.getStart();
+    while(current != nullptr)
+    {
+        // Iterate through the characters of the line
+        LinkedListNode<char>* currentCh = current->getData()->getStart();
+        for(int i = 0; i < lineLength; i++)
+        {
+            // If there is a character for this space, write it to the line, otherwise display a space
+            if(currentCh != nullptr)
+            {
+                line[i].Char.AsciiChar = currentCh->getData();
+                currentCh = currentCh->getNext();
+            }
+            else
+            {
+                line[i].Char.AsciiChar = ' ';
+            }
+            line[i].Attributes = WHITE_TEXT;
+        }
+
+        // Write the line
+        writeOutput(leftMargin, topMargin + currentLineNumber, line, lineLength, 1);
+        if(current->getNext() == nullptr)
+        {
+            // If this is the last line, set the cursor to the end
+            cursorRelativeX = current->getData()->getLength();
+            currentLine = current->getData();
+        }
+        current = current->getNext();
+        currentLineNumber++;
+    }
+
+    // Set the cursor position to the end of the last line
+    cursorRelativeY = lines.getLength() - 1;
+    updateCursorPos();
 }
 
-void GuiEditor::resizeBorders(short oldX, short oldY, short newX, short newY)
+void GuiEditor::drawBorders(short newX, short newY)
 {
     // Top and bottom border
     CHAR_INFO horiz[newX];
     for(int i = 1; i < newX - 1; i++)
     {
         horiz[i].Attributes = WHITE_TEXT;
-        horiz[i].Char.AsciiChar = '#';
+        horiz[i].Char.AsciiChar = (unsigned char) 205;
     }
     horiz[0].Attributes = horiz[newX - 1].Attributes = WHITE_TEXT;
-    horiz[0].Char.AsciiChar = horiz[newX - 1].Char.AsciiChar = '+';
+
+    // Write with the top corners
+    horiz[0].Char.AsciiChar = (unsigned char) 201;
+    horiz[newX - 1].Char.AsciiChar = (unsigned char) 187;
     writeOutput(0, 0, horiz, newX, 1);
+
+    // Write with the bottom corners
+    horiz[0].Char.AsciiChar = (unsigned char) 200;
+    horiz[newX - 1].Char.AsciiChar = (unsigned char) 188;
     writeOutput(0, newY - 1, horiz, newX, 1);
 
     // Left and right border
@@ -53,7 +105,7 @@ void GuiEditor::resizeBorders(short oldX, short oldY, short newX, short newY)
     for(int i = 0; i < newY - 2; i++)
     {
         vert[i].Attributes = WHITE_TEXT;
-        vert[i].Char.AsciiChar = '#';
+        vert[i].Char.AsciiChar = (unsigned char) 186;
     }
     writeOutput(0, 1, vert, 1, newY - 2);
     writeOutput(newX - 1, 1, vert, 1, newY - 2);
@@ -106,22 +158,10 @@ void GuiEditor::resizeBuffer(short newX, short newY)
     }
 
     // Rewrite the border
-    resizeBorders(oldX, oldY, newX + rightAdjust, newY + bottomAdjust);
+    drawBorders(newX + rightAdjust, newY + bottomAdjust);
 
     borderXSize = newX;
     borderYSize = newY;
-}
-
-void GuiEditor::printLinkedList(short x, short y, LinkedList<char> data)
-{
-    CHAR_INFO chars[data.getLength()];
-    LinkedListNode<char>* current = data.getStart();
-    for(int i = 0; i < data.getLength(); i++)
-    {
-        chars[i].Char.AsciiChar = current->getData();
-        current = current->getNext();
-    }
-    writeOutput(x, y, chars, data.getLength(), 1);
 }
 
 void GuiEditor::updateCursorPos()
@@ -134,23 +174,15 @@ void GuiEditor::handleInput(int code)
 {
     if(code == KEY_ENTER)
     {
+        // Move everything else down a line
+        if(cursorRelativeY + 1 < lines.getLength())
+        {
+            // If there's text below this, move it down
+            move(leftMargin, topMargin + cursorRelativeY + 1, borderXSize - (leftMargin * 2), lines.getLength() - cursorRelativeY - 1, 0, 1, ' ');
+        }
+
         // Move the text to a new line
-        SMALL_RECT from;
-        from.Top = topMargin + cursorRelativeY;
-        from.Left = leftMargin + cursorRelativeX;
-        from.Bottom = topMargin + cursorRelativeY;
-        from.Right = leftMargin + currentLine->getLength();
-
-        COORD to;
-        to.X = leftMargin;
-        to.Y = topMargin + cursorRelativeY + 1;
-
-        CHAR_INFO fill;
-        fill.Attributes = WHITE_TEXT;
-        fill.Char.AsciiChar = ' ';
-
-        //ScrollConsoleScreenBuffer(screenBuffer, &from, nullptr, to, fill);
-        ScrollConsoleScreenBuffer(screenBuffer, &from, nullptr, to, &fill);
+        move(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, currentLine->getLength(), 1, -1 * cursorRelativeX, 1, ' ');
 
         // If there's text on the current line, split it
         // Otherwise, make the new line empty
@@ -160,31 +192,66 @@ void GuiEditor::handleInput(int code)
             insertedLine->add(0, currentLine->split(cursorRelativeX));
         }
         lines.add(cursorRelativeY + 1, insertedLine);
-        //printLinkedList(leftMargin, topMargin + cursorRelativeY + 1, *insertedLine);
-
-        // Move everything else down a line
-
-
+        currentLine = insertedLine;
 
         cursorRelativeY++;
         cursorRelativeX = 0;
         updateCursorPos();
-
-        /*CHAR_INFO testSquare[5 * 5];
-        for(int i = 0; i < 5 * 5; i++)
+    }
+    else if(code == KEY_BACKSPACE)
+    {
+        // Backspace a character
+        if(cursorRelativeX == 0)
         {
-            testSquare[i].Char.AsciiChar = '*';
-            testSquare[i].Attributes = WHITE_TEXT;
+            // Remove the line (if not at the top row)
+            if(cursorRelativeY != 0)
+            {
+                LinkedList<char>* prev = lines.get(cursorRelativeY - 1);
+
+                // Move the line up to the end of the one above
+                move(leftMargin, topMargin + cursorRelativeY, currentLine->getLength(), 1, prev->getLength(), -1, ' ');
+
+                // Move everything else up
+                move(leftMargin, topMargin + cursorRelativeY + 1, borderXSize - (leftMargin * 2), lines.getLength() - cursorRelativeY - 1, 0, -1, ' ');
+
+                // Update cursor position to the merge point
+                cursorRelativeY--;
+                cursorRelativeX = prev->getLength();
+                updateCursorPos();
+
+                // Update the linked list
+                prev->add(prev->getLength(), currentLine->getStart());
+                lines.remove(cursorRelativeY + 1, false, false);
+                currentLine = lines.get(cursorRelativeY);
+            }
         }
-        writeOutput(2, 2, testSquare, 5, 5);*/
+        else
+        {
+            // Remove just the character
+            move(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, currentLine->getLength(), 1, -1, 0, ' ');
+            cursorRelativeX--;
+            currentLine->remove(cursorRelativeX);
+            updateCursorPos();
+        }
     }
     else
     {
+        // If it's any character without a special case
+        if(cursorRelativeX < currentLine->getLength())
+        {
+            // If we're in a line, move all the other characters back
+            // Because it's just being moved back one space, we can make the fill character the entered one
+            move(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, currentLine->getLength(), 1, 1, 0, code);
+        }
+        else
+        {
+            // If it's at the end of the line, add it
+            CHAR_INFO ch[1];
+            ch[0].Char.AsciiChar = code;
+            ch[0].Attributes = WHITE_TEXT;
+            writeOutput(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, ch, 1, 1);
+        }
         currentLine->add(cursorRelativeX, code);
-        CHAR_INFO ch[1];
-        ch[0].Char.AsciiChar = code;
-        ch[0].Attributes = WHITE_TEXT;
-        writeOutput(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, ch, 1, 1);
         cursorRelativeX++;
         updateCursorPos();
     }
@@ -196,12 +263,32 @@ void GuiEditor::handleArrow(int code)
     {
         case KEY_UP:
         {
-            //resizeBuffer(borderXSize, borderYSize + 1);
+            if(cursorRelativeY != 0)
+            {
+                cursorRelativeY--;
+                currentLine = lines.get(cursorRelativeY);
+
+                if(currentLine->getLength() < cursorRelativeX)
+                {
+                    cursorRelativeX = currentLine->getLength();
+                }
+                updateCursorPos();
+            }
             break;
         }
         case KEY_DOWN:
         {
-            //resizeBuffer(borderXSize, borderYSize - 1);
+            if(cursorRelativeY != lines.getLength() - 1)
+            {
+                cursorRelativeY++;
+                currentLine = lines.get(cursorRelativeY);
+
+                if(currentLine->getLength() < cursorRelativeX)
+                {
+                    cursorRelativeX = currentLine->getLength();
+                }
+                updateCursorPos();
+            }
             break;
         }
         case KEY_LEFT:

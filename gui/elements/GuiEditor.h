@@ -27,8 +27,7 @@ private:
 
     void completeReRender();
     void resizeBuffer(short newX, short newY);
-    void resizeBorders(short oldX, short oldY, short newX, short newY);
-    void printLinkedList(short x, short y, LinkedList<char> data);
+    void drawBorders(short newX, short newY);
     void updateCursorPos();
 public:
     GuiEditor();

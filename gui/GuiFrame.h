@@ -9,6 +9,7 @@
 #include "InputHandler.h"
 #include "GuiManager.h"
 #include <iostream>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -27,6 +28,7 @@ protected:
     void setCursorPos(short x, short y);
     CHAR_INFO* centerText(string* text, int textLength, int horizontalSize);
     void writeOutput(short x, short y, CHAR_INFO* text, short columns, short rows);
+    void move(short x, short y, short length, short height, short distanceX, short distanceY, char fillch);
 public:
     // Designed to be optionally overridden
     virtual void onActivate()

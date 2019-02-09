@@ -10,7 +10,7 @@
 
 using namespace std;
 
-int main(void)
+int main()
 {
     //OptionsManager options;
 
@@ -18,7 +18,6 @@ int main(void)
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
     manager.push(new GuiEditor());
-    //manager.push(new GuiMainMenu());
 
     int input = _getch();
     while(true)

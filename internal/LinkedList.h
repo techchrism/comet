@@ -82,18 +82,20 @@ public:
                 this->end = nullptr;
                 this->length = 0;
             }
-
-            // Special case for moving the start pointer
-            LinkedListNode<T>* removed = this->start;
-            this->start = this->start->getNext();
-            delete removed;
-            length--;
-
-            // If the element removed was the last one in the list, set the end pointer to the start
-            // (both should now be nullptr)
-            if(length == 0)
+            else
             {
-                this->end = this->start;
+                // Special case for moving the start pointer
+                LinkedListNode<T>* removed = this->start;
+                this->start = this->start->getNext();
+                delete removed;
+                length--;
+
+                // If the element removed was the last one in the list, set the end pointer to the start
+                // (both should now be nullptr)
+                if(length == 0)
+                {
+                    this->end = this->start;
+                }
             }
         }
         else
