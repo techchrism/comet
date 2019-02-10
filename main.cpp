@@ -1,4 +1,5 @@
 #include <iostream>
+#include <Windows.h>
 #include <conio.h>
 
 #include "internal/OptionsManager.h"
@@ -7,8 +8,21 @@
 #include "gui/elements/components/GuiMenu.h"
 #include "gui/elements/GuiMainMenu.h"
 #include "gui/elements/GuiEditor.h"
+#include "gui/elements/GuiAnimationTest.h"
 
 using namespace std;
+
+DWORD WINAPI thread_func(LPVOID lpParameter)
+{
+    GuiManager* gui = (GuiManager*) lpParameter;
+
+    while(gui->getLength() > 1)
+    {
+        gui->handleAnimationFrame(0);
+        Sleep(1);
+    }
+    return 0;
+}
 
 int main()
 {
@@ -17,7 +31,12 @@ int main()
     // Start the GuiManager and add the current screen buffer as the root buffer
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
-    manager.push(new GuiEditor());
+    manager.push(new GuiMainMenu());
+    manager.push(new GuiAnimationTest());
+
+    CreateThread(NULL, 0, thread_func, &manager, 0 ,0);
+
+
 
     int input = _getch();
     while(true)

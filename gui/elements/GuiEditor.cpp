@@ -14,7 +14,6 @@ GuiEditor::GuiEditor()
                                                    CONSOLE_TEXTMODE_BUFFER,
                                                    NULL);
     SetConsoleMode(screenBuffer, ENABLE_WINDOW_INPUT | ENABLE_LINE_INPUT);
-    //SetConsoleCursorPosition(screenBuffer, {leftMargin, topMargin});
     CONSOLE_SCREEN_BUFFER_INFO buffInfo;
     GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
     this->borderXSize = buffInfo.dwSize.X;
@@ -23,10 +22,10 @@ GuiEditor::GuiEditor()
     leftMargin = 2;
     lines.add(0, new LinkedList<char>);
     currentLine = lines.get(0);
-    completeReRender();
+    completeRender();
 }
 
-void GuiEditor::completeReRender()
+void GuiEditor::completeRender()
 {
     // Write the borders
 

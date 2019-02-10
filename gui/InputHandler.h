@@ -20,6 +20,7 @@ class InputHandler
 public:
     virtual void handleInput(int code) {};
     virtual void handleArrow(int code) {};
+    virtual void handleAnimationFrame(int count) {};
 };
 
 

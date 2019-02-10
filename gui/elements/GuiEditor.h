@@ -25,7 +25,7 @@ private:
     short topMargin;
     short leftMargin;
 
-    void completeReRender();
+    void completeRender();
     void resizeBuffer(short newX, short newY);
     void drawBorders(short newX, short newY);
     void updateCursorPos();
