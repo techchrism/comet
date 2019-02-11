@@ -17,9 +17,15 @@ DWORD WINAPI thread_func(LPVOID lpParameter)
 {
     GuiManager* gui = (GuiManager*) lpParameter;
 
+    DWORD ticks = GetTickCount();
     while(gui->getLength() > 1)
     {
-        gui->handleAnimationFrame(0);
+        DWORD currentTicks = GetTickCount();
+        if(currentTicks - ticks >= 1)
+        {
+            gui->handleAnimationFrame(0);
+            ticks = currentTicks;
+        }
         Sleep(1);
     }
     return 0;
