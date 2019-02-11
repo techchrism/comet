@@ -7,14 +7,15 @@
 
 
 #include "../GuiFrame.h"
+#include "components/GuiStar.h"
 
 class GuiAnimationTest : public GuiFrame
 {
 private:
-
+    GuiStar star;
 public:
     GuiAnimationTest();
-    void handleAnimationFrame(int count) override;
+    void handleAnimationFrame(unsigned long count) override;
 };
 
 

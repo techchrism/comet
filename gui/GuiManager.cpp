@@ -36,7 +36,7 @@ void GuiManager::handleArrow(int code)
     frameStack.getEnd()->getData()->handleArrow(code);
 }
 
-void GuiManager::handleAnimationFrame(int count)
+void GuiManager::handleAnimationFrame(unsigned long count)
 {
     currentCount++;
     frameStack.getEnd()->getData()->handleAnimationFrame(currentCount);

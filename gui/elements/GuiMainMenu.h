@@ -5,15 +5,29 @@
 #ifndef THEEDITOR_GUIMAINMENU_H
 #define THEEDITOR_GUIMAINMENU_H
 
-
 #include "components/GuiVerticalMenu.h"
+#include "components/GuiStar.h"
+#include "components/comet/GuiComet.h"
 
-class GuiMainMenu : public GuiVerticalMenu
+#define HEADER_HEIGHT 6
+#define HEADER_LENGTH 45
+#define OPTIONS_LENGTH 5
+#define COMETS_COUNT 3
+
+class GuiMainMenu : public GuiFrame// : public GuiVerticalMenu
 {
+private:
+    LinkedList<GuiStar*> stars;
+    GuiComet* comets[COMETS_COUNT];
+
+    string header[HEADER_HEIGHT];
+    string tagline;
 protected:
-    void onOptionSelect(string name, int pos) override;
+    //void onOptionSelect(string name, int pos) override;
+    void handleAnimationFrame(unsigned long count) override;
 public:
     GuiMainMenu();
+    ~GuiMainMenu();
 };
 
 

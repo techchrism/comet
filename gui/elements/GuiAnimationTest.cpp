@@ -19,9 +19,10 @@ GuiAnimationTest::GuiAnimationTest()
     cursor.bVisible = false;
     cursor.dwSize = 1;
     SetConsoleCursorInfo(this->screenBuffer, &cursor);
+    star.setup(3, 3, &screenBuffer);
 }
 
-void GuiAnimationTest::handleAnimationFrame(int count)
+void GuiAnimationTest::handleAnimationFrame(unsigned long count)
 {
     string countStr = to_string(count);
     CHAR_INFO chars[countStr.length()];
@@ -31,4 +32,5 @@ void GuiAnimationTest::handleAnimationFrame(int count)
         chars[i].Char.AsciiChar = countStr[i];
     }
     writeOutput(0, 0, chars, countStr.length(), 1);
+    star.toggleChance();
 }

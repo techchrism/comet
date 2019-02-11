@@ -1,6 +1,7 @@
 #include <iostream>
-#include <Windows.h>
+#include <windows.h>
 #include <conio.h>
+#include <time.h>
 
 #include "internal/OptionsManager.h"
 #include "gui/GuiManager.h"
@@ -28,15 +29,24 @@ int main()
 {
     //OptionsManager options;
 
+    // Save the old title to be restored after the application closes
+    TCHAR oldTitle[MAX_PATH];
+    GetConsoleTitle(oldTitle, MAX_PATH);
+
+    // Seed random numbers with the current time
+    srand(time(0));
+
+    SetConsoleTitle("Comet Editor");
+
     // Start the GuiManager and add the current screen buffer as the root buffer
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
     manager.push(new GuiMainMenu());
-    manager.push(new GuiAnimationTest());
+    //manager.push(new GuiEditor());
+    //manager.push(new GuiAnimationTest());
 
-    CreateThread(NULL, 0, thread_func, &manager, 0 ,0);
-
-
+    // Start animation worker thread
+    CreateThread(nullptr, 0, thread_func, &manager, 0, nullptr);
 
     int input = _getch();
     while(true)
@@ -63,5 +73,7 @@ int main()
         input = _getch();
     }
 
+    // Restore the starting title
+    SetConsoleTitle(oldTitle);
     return 0;
 }
