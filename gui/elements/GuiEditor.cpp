@@ -13,13 +13,8 @@ GuiEditor::GuiEditor()
                                                    NULL,
                                                    CONSOLE_TEXTMODE_BUFFER,
                                                    NULL);
-    SetConsoleMode(screenBuffer, ENABLE_WINDOW_INPUT | ENABLE_LINE_INPUT);
-    CONSOLE_SCREEN_BUFFER_INFO buffInfo;
-    GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
-    this->borderXSize = buffInfo.dwSize.X;
-    this->borderYSize = buffInfo.dwSize.Y;
-    topMargin = 1;
-    leftMargin = 2;
+    SetConsoleMode(screenBuffer, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT & ~ENABLE_QUICK_EDIT_MODE);
+
     lines.add(0, new LinkedList<char>);
     currentLine = lines.get(0);
     completeRender();
@@ -27,7 +22,13 @@ GuiEditor::GuiEditor()
 
 void GuiEditor::completeRender()
 {
-    // Write the borders
+    // Set the size and margins
+    CONSOLE_SCREEN_BUFFER_INFO buffInfo;
+    GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
+    this->borderXSize = buffInfo.dwSize.X;
+    this->borderYSize = buffInfo.dwSize.Y;
+    topMargin = 1;
+    leftMargin = 2;
 
     // Clear the buffer
     DWORD numChars;
@@ -233,7 +234,8 @@ void GuiEditor::handleInput(int code)
             updateCursorPos();
         }
     }
-    else
+    // Only print valid ascii characters (>= 32)
+    else if(code >= 32)
     {
         // If it's any character without a special case
         if(cursorRelativeX < currentLine->getLength())
@@ -254,6 +256,11 @@ void GuiEditor::handleInput(int code)
         cursorRelativeX++;
         updateCursorPos();
     }
+}
+
+void GuiEditor::handleCtrl(int code)
+{
+
 }
 
 void GuiEditor::handleArrow(int code)

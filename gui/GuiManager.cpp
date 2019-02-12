@@ -2,11 +2,18 @@
 // Created by Techdoodle on 1/18/2019.
 //
 
+#include <afxres.h>
 #include "GuiManager.h"
 
 GuiManager::GuiManager()
 {
+    inputHandle = GetStdHandle(STD_INPUT_HANDLE);
 
+    // Disable the windows "Quick Edit Mode" that creates a selection box when the mouse is clicked and dragged
+    // Also disable the CTRL + C break command
+    DWORD prev_mode;
+    GetConsoleMode(inputHandle, &prev_mode);
+    SetConsoleMode(inputHandle, prev_mode & ~ENABLE_QUICK_EDIT_MODE & ~ENABLE_PROCESSED_INPUT);
 }
 
 GuiManager::~GuiManager()
@@ -30,6 +37,54 @@ void GuiManager::pop()
     this->frameStack.getEnd()->getData()->onActivate();
 }
 
+bool GuiManager::handleEvents()
+{
+    // Get console events (blocking operation)
+    DWORD numRead;
+    INPUT_RECORD inBuf[128];
+    ReadConsoleInput(inputHandle, inBuf, 128, &numRead);
+
+    // Iterate through the events
+    for(int i = 0; i < numRead; i++)
+    {
+        switch(inBuf[i].EventType)
+        {
+            case KEY_EVENT:
+            {
+                // If it's a keyboard event, handle it
+                KEY_EVENT_RECORD ev = inBuf[i].Event.KeyEvent;
+                DWORD vk = ev.wVirtualKeyCode;
+                if(ev.bKeyDown)
+                {
+                    // Check if the ctrl key is pressed
+                    if(((ev.dwControlKeyState & LEFT_CTRL_PRESSED) == LEFT_CTRL_PRESSED ||
+                        (ev.dwControlKeyState & RIGHT_CTRL_PRESSED) == RIGHT_CTRL_PRESSED)
+                        && vk != VK_CONTROL)
+                    {
+                        // Sends 1 for a, 2-b, 3-c, ect.
+                        // Add 96 to convert to proper ascii
+                        handleCtrl(ev.uChar.AsciiChar + 96);
+                    }
+                    else if(vk == VK_LEFT || vk == VK_RIGHT || vk == VK_UP || vk == VK_DOWN)
+                    {
+                        handleArrow(vk);
+                    }
+                    else
+                    {
+                        handleInput(ev.uChar.AsciiChar);
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+    return true;
+}
+
 void GuiManager::handleArrow(int code)
 {
     // Pass the arrow input to the top layer of the stack
@@ -45,6 +100,11 @@ void GuiManager::handleAnimationFrame(unsigned long count)
 void GuiManager::handleInput(int code)
 {
     frameStack.getEnd()->getData()->handleInput(code);
+}
+
+void GuiManager::handleCtrl(int code)
+{
+    frameStack.getEnd()->getData()->handleCtrl(code);
 }
 
 int GuiManager::getLength()

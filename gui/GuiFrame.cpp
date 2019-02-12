@@ -2,6 +2,7 @@
 // Created by Techdoodle on 1/18/2019.
 //
 
+#include <afxres.h>
 #include "GuiFrame.h"
 
 void GuiFrame::setCursorPos(short x, short y)
@@ -68,4 +69,20 @@ void GuiFrame::writeOutput(short x, short y, CHAR_INFO *text, short columns, sho
     SMALL_RECT box = {x, y, finishX, finishY};
 
     WriteConsoleOutput(this->screenBuffer, text, {columns, rows}, {0, 0}, &box);
+}
+
+void GuiFrame::writeString(short x, short y, string data)
+{
+    CHAR_INFO chars[data.length()];
+    for(int i = 0; i < data.length(); i++)
+    {
+        chars[i].Attributes = WHITE_TEXT;
+        chars[i].Char.AsciiChar = data[i];
+    }
+    writeOutput(x, y, chars, data.length(), 1);
+}
+
+HANDLE GuiFrame::getBuffer()
+{
+    return screenBuffer;
 }

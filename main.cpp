@@ -48,13 +48,14 @@ int main()
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
     manager.push(new GuiMainMenu());
-    //manager.push(new GuiEditor());
+    manager.push(new GuiEditor());
     //manager.push(new GuiAnimationTest());
 
     // Start animation worker thread
     CreateThread(nullptr, 0, thread_func, &manager, 0, nullptr);
 
-    int input = _getch();
+    /*int input = _getch();
+
     while(true)
     {
         if(input == 0 || input == 224)
@@ -77,6 +78,11 @@ int main()
         }
 
         input = _getch();
+    }*/
+
+    while(manager.handleEvents())
+    {
+
     }
 
     // Restore the starting title

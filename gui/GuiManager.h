@@ -17,6 +17,7 @@ class GuiManager : public InputHandler
 private:
     LinkedList<GuiFrame*> frameStack;
     unsigned long currentCount = 0;
+    HANDLE inputHandle;
 public:
     GuiManager();
     ~GuiManager();
@@ -24,9 +25,11 @@ public:
     void push(GuiFrame* frame);
     void pop();
     int getLength();
+    bool handleEvents();
 
     void handleArrow(int code) override;
     void handleInput(int code) override;
+    void handleCtrl(int code) override;
     void handleAnimationFrame(unsigned long count) override;
 };
 

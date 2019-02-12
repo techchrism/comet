@@ -5,10 +5,14 @@
 #ifndef THEEDITOR_INPUTHANDLER_H
 #define THEEDITOR_INPUTHANDLER_H
 
-#define KEY_UP 72
+/*#define KEY_UP 72
 #define KEY_DOWN 80
 #define KEY_LEFT 75
-#define KEY_RIGHT 77
+#define KEY_RIGHT 77*/
+#define KEY_UP 0x26
+#define KEY_DOWN 0x28
+#define KEY_LEFT 0x25
+#define KEY_RIGHT 0x27
 
 #define KEY_BACKSPACE 8
 #define KEY_DELETE 127
@@ -20,6 +24,7 @@ class InputHandler
 public:
     virtual void handleInput(int code) {};
     virtual void handleArrow(int code) {};
+    virtual void handleCtrl(int code) {};
     virtual void handleAnimationFrame(unsigned long frame) {};
 };
 

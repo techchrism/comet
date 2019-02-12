@@ -33,6 +33,7 @@ public:
     GuiEditor();
     void handleArrow(int code) override;
     void handleInput(int code) override;
+    void handleCtrl(int code) override;
 };
 
 

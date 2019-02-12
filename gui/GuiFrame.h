@@ -28,6 +28,7 @@ protected:
     void setCursorPos(short x, short y);
     CHAR_INFO* centerText(string* text, int textLength, int horizontalSize);
     void writeOutput(short x, short y, CHAR_INFO* text, short columns, short rows);
+
     void move(short x, short y, short length, short height, short distanceX, short distanceY, char fillch);
 public:
     // Designed to be optionally overridden
@@ -38,6 +39,8 @@ public:
     virtual void onResize() {};
 
     void setManager(GuiManager* manager);
+    HANDLE getBuffer();
+    void writeString(short x, short y, string data);
 };
 
 #endif //THEEDITOR_GUIFRAME_H
