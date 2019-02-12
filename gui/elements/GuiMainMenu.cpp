@@ -33,7 +33,6 @@ GuiMainMenu::GuiMainMenu()
     header[4] = "\xC8\xDB\xDB\xDB\xDB\xDB\xDB\xBB\xC8\xDB\xDB\xDB\xDB\xDB\xDB\xC9\xBC\xDB\xDB\xBA \xC8\xCD\xBC \xDB\xDB\xBA\xDB\xDB\xDB\xDB\xDB\xDB\xDB\xBB   \xDB\xDB\xBA   ";
     header[5] = " \xC8\xCD\xCD\xCD\xCD\xCD\xBC \xC8\xCD\xCD\xCD\xCD\xCD\xBC \xC8\xCD\xBC     \xC8\xCD\xBC\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xBC   \xC8\xCD\xBC   ";
 
-
     tagline = "A command-line text editor for the stars";
 
     // Create the console buffer
@@ -48,6 +47,31 @@ GuiMainMenu::GuiMainMenu()
     cursor.bVisible = false;
     cursor.dwSize = 1;
     SetConsoleCursorInfo(this->screenBuffer, &cursor);
+    render();
+}
+
+GuiMainMenu::~GuiMainMenu()
+{
+    cleanup();
+}
+
+void GuiMainMenu::cleanup()
+{
+    // Clean up the stars and the comets
+    stars.removeAll();
+    for(int i = 0; i < COMETS_COUNT; i++)
+    {
+        delete comets[i];
+    }
+}
+
+/*void GuiMainMenu::onOptionSelect(string name, int pos)
+{
+    manager->push(new GuiEditor());
+}*/
+
+void GuiMainMenu::render()
+{
     CONSOLE_SCREEN_BUFFER_INFO buffInfo;
     GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
 
@@ -120,20 +144,25 @@ GuiMainMenu::GuiMainMenu()
     }
 }
 
-GuiMainMenu::~GuiMainMenu()
+void GuiMainMenu::onResize()
 {
-    // Clean up the stars and the comets
-    stars.removeAll();
-    for(int i = 0; i < COMETS_COUNT; i++)
-    {
-        delete comets[i];
-    }
-}
+    // Set the buffer size and clear it
+    CONSOLE_SCREEN_BUFFER_INFO buffInfo;
+    GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
 
-/*void GuiMainMenu::onOptionSelect(string name, int pos)
-{
-    manager->push(new GuiEditor());
-}*/
+    SetConsoleScreenBufferSize(screenBuffer, {static_cast<SHORT>(buffInfo.srWindow.Right + 1),
+                                              static_cast<SHORT>(buffInfo.srWindow.Bottom + 1)});
+
+    short xSize = buffInfo.srWindow.Right + 1;
+    short ySize = buffInfo.srWindow.Bottom + 1;
+    DWORD numChars;
+    FillConsoleOutputCharacter(screenBuffer, ' ', xSize * ySize, {0, 0}, &numChars);
+    FillConsoleOutputAttribute(screenBuffer, WHITE_TEXT, xSize * ySize, {0, 0}, &numChars);
+
+    // Reset and re-render the data to the new buffer dimensions
+    cleanup();
+    render();
+}
 
 void GuiMainMenu::handleAnimationFrame(unsigned long count)
 {

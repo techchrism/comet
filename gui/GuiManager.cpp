@@ -76,6 +76,12 @@ bool GuiManager::handleEvents()
                 }
                 break;
             }
+            case WINDOW_BUFFER_SIZE_EVENT:
+            {
+                // Handle window resize events
+                frameStack.getEnd()->getData()->onResize();
+                break;
+            }
             default:
             {
                 break;

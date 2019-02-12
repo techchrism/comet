@@ -22,12 +22,15 @@ private:
 
     string header[HEADER_HEIGHT];
     string tagline;
+    void render();
+    void cleanup();
 protected:
     //void onOptionSelect(string name, int pos) override;
     void handleAnimationFrame(unsigned long count) override;
 public:
     GuiMainMenu();
     ~GuiMainMenu();
+    void onResize() override;
 };
 
 
