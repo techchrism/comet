@@ -42,11 +42,6 @@ GuiMainMenu::GuiMainMenu()
                                                    CONSOLE_TEXTMODE_BUFFER,
                                                    NULL);
 
-    // Hide cursor for menus
-    CONSOLE_CURSOR_INFO cursor;
-    cursor.bVisible = false;
-    cursor.dwSize = 1;
-    SetConsoleCursorInfo(this->screenBuffer, &cursor);
     render();
 }
 
@@ -72,6 +67,12 @@ void GuiMainMenu::cleanup()
 
 void GuiMainMenu::render()
 {
+    // Hide cursor for menus
+    CONSOLE_CURSOR_INFO cursor;
+    cursor.bVisible = false;
+    cursor.dwSize = 1;
+    SetConsoleCursorInfo(this->screenBuffer, &cursor);
+
     CONSOLE_SCREEN_BUFFER_INFO buffInfo;
     GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
 
@@ -146,6 +147,9 @@ void GuiMainMenu::render()
 
 void GuiMainMenu::onResize()
 {
+    resizeIgnore = true;
+    cleanup();
+
     // Set the buffer size and clear it
     CONSOLE_SCREEN_BUFFER_INFO buffInfo;
     GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
@@ -160,12 +164,23 @@ void GuiMainMenu::onResize()
     FillConsoleOutputAttribute(screenBuffer, WHITE_TEXT, xSize * ySize, {0, 0}, &numChars);
 
     // Reset and re-render the data to the new buffer dimensions
-    cleanup();
     render();
+    resizeCountdown = 10;
+    resizeIgnore = false;
 }
 
 void GuiMainMenu::handleAnimationFrame(unsigned long count)
 {
+    if(resizeIgnore)
+    {
+        return;
+    }
+    else if(resizeCountdown > 0)
+    {
+        resizeCountdown--;
+        return;
+    }
+
     // Animate the stars
     LinkedListNode<GuiStar*>* current = stars.getStart();
     while(current != nullptr)

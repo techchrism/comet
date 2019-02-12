@@ -24,6 +24,9 @@ private:
     string tagline;
     void render();
     void cleanup();
+
+    bool resizeIgnore = false;
+    int resizeCountdown = 0;
 protected:
     //void onOptionSelect(string name, int pos) override;
     void handleAnimationFrame(unsigned long count) override;
