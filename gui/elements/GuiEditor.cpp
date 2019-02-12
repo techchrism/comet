@@ -20,6 +20,17 @@ GuiEditor::GuiEditor()
     completeRender();
 }
 
+void GuiEditor::onResize()
+{
+    CONSOLE_SCREEN_BUFFER_INFO buffInfo;
+    GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
+
+    SetConsoleScreenBufferSize(screenBuffer, {static_cast<SHORT>(buffInfo.srWindow.Right + 1),
+                                              static_cast<SHORT>(buffInfo.srWindow.Bottom + 1)});
+
+    completeRender();
+}
+
 void GuiEditor::completeRender()
 {
     // Set the size and margins
@@ -67,7 +78,7 @@ void GuiEditor::completeRender()
         if(current->getNext() == nullptr)
         {
             // If this is the last line, set the cursor to the end
-            cursorRelativeX = current->getData()->getLength();
+            //cursorRelativeX = current->getData()->getLength();
             currentLine = current->getData();
         }
         current = current->getNext();
@@ -75,7 +86,7 @@ void GuiEditor::completeRender()
     }
 
     // Set the cursor position to the end of the last line
-    cursorRelativeY = lines.getLength() - 1;
+    //cursorRelativeY = lines.getLength() - 1;
     updateCursorPos();
 }
 
@@ -168,6 +179,66 @@ void GuiEditor::updateCursorPos()
 {
     SetConsoleCursorPosition(screenBuffer, {static_cast<SHORT>(leftMargin + cursorRelativeX),
                                             static_cast<SHORT>(topMargin + cursorRelativeY)});
+}
+
+void GuiEditor::handleMouse(MOUSE_EVENT_RECORD m)
+{
+    if(m.dwEventFlags == 0)
+    {
+        // Means mouse button press/release
+        if((m.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) == FROM_LEFT_1ST_BUTTON_PRESSED)
+        {
+            // If the left mouse button is bring pressed
+            // Check if it's the first press of the left mouse button (it could be an event for second button being pressed)
+            if(mouseDownAt.X == -1 && mouseDownAt.Y == -1)
+            {
+                mouseDownAt = m.dwMousePosition;
+            }
+        }
+        else
+        {
+            // If the left mouse button is not being pressed
+            if(mouseDownAt.X != -1 && mouseDownAt.Y != -1)
+            {
+                // Check if it's the same position (a single click with no movement)
+                if(mouseDownAt.X == m.dwMousePosition.X && mouseDownAt.Y == m.dwMousePosition.Y)
+                {
+                    LinkedList<char>* targetLine;
+                    if(mouseDownAt.Y > topMargin + lines.getLength() - 1)
+                    {
+                        targetLine = lines.getEnd()->getData();
+                        cursorRelativeY = lines.getLength() - 1;
+                    }
+                    else if(mouseDownAt.Y < topMargin)
+                    {
+                        targetLine = lines.getStart()->getData();
+                        cursorRelativeY = 0;
+                    }
+                    else
+                    {
+                        targetLine = lines.get(mouseDownAt.Y - topMargin);
+                        cursorRelativeY = mouseDownAt.Y - topMargin;
+                    }
+
+                    if(mouseDownAt.X < leftMargin)
+                    {
+                        cursorRelativeX = 0;
+                    }
+                    else if(mouseDownAt.X > targetLine->getLength() + leftMargin)
+                    {
+                        cursorRelativeX = targetLine->getLength();
+                    }
+                    else
+                    {
+                        cursorRelativeX = mouseDownAt.X - leftMargin;
+                    }
+
+                    updateCursorPos();
+                }
+                mouseDownAt = {-1, -1};
+            }
+        }
+    }
 }
 
 void GuiEditor::handleInput(int code)

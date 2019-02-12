@@ -29,11 +29,17 @@ private:
     void resizeBuffer(short newX, short newY);
     void drawBorders(short newX, short newY);
     void updateCursorPos();
+
+    COORD mouseDownAt = {-1, -1};
+    COORD selectionTo = {-1, -1};
+    bool selectionMode = false;
 public:
     GuiEditor();
     void handleArrow(int code) override;
     void handleInput(int code) override;
     void handleCtrl(int code) override;
+    void handleMouse(MOUSE_EVENT_RECORD m) override;
+    void onResize() override;
 };
 
 

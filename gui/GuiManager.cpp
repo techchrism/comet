@@ -82,6 +82,10 @@ bool GuiManager::handleEvents()
                 frameStack.getEnd()->getData()->onResize();
                 break;
             }
+            case MOUSE_EVENT:
+            {
+                frameStack.getEnd()->getData()->handleMouse(inBuf[i].Event.MouseEvent);
+            }
             default:
             {
                 break;

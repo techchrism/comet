@@ -25,6 +25,7 @@ public:
     virtual void handleInput(int code) {};
     virtual void handleArrow(int code) {};
     virtual void handleCtrl(int code) {};
+    virtual void handleMouse(MOUSE_EVENT_RECORD m) {};
     virtual void handleAnimationFrame(unsigned long frame) {};
 };
 
