@@ -17,6 +17,10 @@ GuiEditor::GuiEditor()
 
     lines.add(0, new LinkedList<char>);
     currentLine = lines.get(0);
+
+    header = "[Comet Editor]";
+    footer = "[Esc \xAF Menu]";
+
     completeRender();
 }
 
@@ -48,6 +52,12 @@ void GuiEditor::completeRender()
 
     // Draw the borders
     drawBorders(borderXSize, borderYSize);
+
+    // Draw the header and footer
+    short headerPos = (borderXSize / 2) - (header.length() / 2);
+    writeString(headerPos, 0, header);
+    short footerPos = (borderXSize / 2) - (footer.length() / 2);
+    writeString(footerPos, borderYSize - 1, footer);
 
     // Iterate through, drawing the lineas we go
     short lineLength = borderXSize - (leftMargin * 2);

@@ -14,6 +14,9 @@ private:
     LinkedList<LinkedList<char>*> lines;
     LinkedList<char>* currentLine;
 
+    string header;
+    string footer;
+
     // The cursor position relative to the top-left margins
     // Starts at 0
     int cursorRelativeX = 0;
