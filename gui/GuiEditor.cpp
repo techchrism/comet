@@ -213,20 +213,19 @@ void GuiEditor::handleMouse(MOUSE_EVENT_RECORD m)
                 // Check if it's the same position (a single click with no movement)
                 if(mouseDownAt.X == m.dwMousePosition.X && mouseDownAt.Y == m.dwMousePosition.Y)
                 {
-                    LinkedList<char>* targetLine;
                     if(mouseDownAt.Y > topMargin + lines.getLength() - 1)
                     {
-                        targetLine = lines.getEnd()->getData();
+                        currentLine = lines.getEnd()->getData();
                         cursorRelativeY = lines.getLength() - 1;
                     }
                     else if(mouseDownAt.Y < topMargin)
                     {
-                        targetLine = lines.getStart()->getData();
+                        currentLine = lines.getStart()->getData();
                         cursorRelativeY = 0;
                     }
                     else
                     {
-                        targetLine = lines.get(mouseDownAt.Y - topMargin);
+                        currentLine = lines.get(mouseDownAt.Y - topMargin);
                         cursorRelativeY = mouseDownAt.Y - topMargin;
                     }
 
@@ -234,9 +233,9 @@ void GuiEditor::handleMouse(MOUSE_EVENT_RECORD m)
                     {
                         cursorRelativeX = 0;
                     }
-                    else if(mouseDownAt.X > targetLine->getLength() + leftMargin)
+                    else if(mouseDownAt.X > currentLine->getLength() + leftMargin)
                     {
-                        cursorRelativeX = targetLine->getLength();
+                        cursorRelativeX = currentLine->getLength();
                     }
                     else
                     {

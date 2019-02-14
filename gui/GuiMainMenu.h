@@ -5,14 +5,14 @@
 #ifndef THEEDITOR_GUIMAINMENU_H
 #define THEEDITOR_GUIMAINMENU_H
 
-#include "components/GuiVerticalMenu.h"
-#include "components/GuiStar.h"
-#include "components/comet/GuiComet.h"
+#include "elements/components/GuiVerticalMenu.h"
+#include "elements/components/GuiStar.h"
+#include "elements/components/comet/GuiComet.h"
 
 #define HEADER_HEIGHT 6
 #define HEADER_LENGTH 45
 #define OPTIONS_LENGTH 5
-#define COMETS_COUNT 3
+#define COMETS_COUNT 4
 
 class GuiMainMenu : public GuiFrame// : public GuiVerticalMenu
 {

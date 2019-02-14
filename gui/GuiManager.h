@@ -6,7 +6,7 @@
 #define THEEDITOR_GUIMANAGER_H
 
 #include "../internal/LinkedList.h"
-#include "GuiFrame.h"
+#include "elements/components/GuiFrame.h"
 
 // Forward definition is needed to resolve mutual dependencies
 class GuiFrame;

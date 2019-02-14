@@ -6,7 +6,7 @@
 #define THEEDITOR_GUIVERTICALMENU_H
 
 
-#include "../../GuiFrame.h"
+#include "GuiFrame.h"
 
 class GuiVerticalMenu : public GuiFrame
 {

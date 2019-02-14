@@ -6,7 +6,7 @@
 #define THEEDITOR_GUIEDITOR_H
 
 
-#include "../GuiFrame.h"
+#include "elements/components/GuiFrame.h"
 
 class GuiEditor : public GuiFrame
 {

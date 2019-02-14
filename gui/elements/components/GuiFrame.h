@@ -7,7 +7,7 @@
 
 #include <windows.h>
 #include "InputHandler.h"
-#include "GuiManager.h"
+#include "../../GuiManager.h"
 #include <iostream>
 #include <fcntl.h>
 

@@ -4,7 +4,7 @@
 
 #include <afxres.h>
 #include "GuiComet.h"
-#include "../../../GuiFrame.h"
+#include "../GuiFrame.h"
 
 GuiComet::GuiComet(HANDLE *buffer, short xSize, short ySize)
 {
