@@ -606,10 +606,24 @@ void GuiEditor::handleCtrl(int code)
     {
         pasteClipboard();
     }
+    else if(code == 'a')
+    {
+        // Select everything
+        selectionMode = true;
+        selectionStart = {0, 0};
+        selectionEnd.X = lines.getEnd()->getData()->getLength() - 1;
+        selectionEnd.Y = lines.getLength() - 1;
+        updateSelection(selectionStart, selectionEnd, selectionEnd);
+    }
 }
 
 void GuiEditor::handleArrow(int code)
 {
+    if(selectionMode)
+    {
+        clearSelection();
+    }
+
     switch(code)
     {
         case KEY_UP:
