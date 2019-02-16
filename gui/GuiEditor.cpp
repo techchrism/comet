@@ -37,6 +37,12 @@ void GuiEditor::onResize()
 
 void GuiEditor::completeRender()
 {
+    //todo properly redraw the selection
+    if(selectionMode)
+    {
+        clearSelection();
+    }
+
     // Set the size and margins
     CONSOLE_SCREEN_BUFFER_INFO buffInfo;
     GetConsoleScreenBufferInfo(screenBuffer, &buffInfo);
@@ -191,60 +197,294 @@ void GuiEditor::updateCursorPos()
                                             static_cast<SHORT>(topMargin + cursorRelativeY)});
 }
 
-void GuiEditor::handleMouse(MOUSE_EVENT_RECORD m)
+COORD GuiEditor::getTextPos(COORD pos)
 {
-    if(m.dwEventFlags == 0)
+    // Generates an absolute COORD (not relative to margins) of a valid text cursor position given a COORD pos
+
+    LinkedList<char>* target;
+    COORD retPos;
+
+    // Set the current line to the first line if the click was above the text, last line if it was below
+    if(pos.Y > topMargin + lines.getLength() - 1)
     {
-        // Means mouse button press/release
-        if((m.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) == FROM_LEFT_1ST_BUTTON_PRESSED)
+        target = lines.getEnd()->getData();
+        retPos.Y = lines.getLength() - 1;
+    }
+    else if(pos.Y < topMargin)
+    {
+        target = lines.getStart()->getData();
+        retPos.Y = 0;
+    }
+    else
+    {
+        target = lines.get(pos.Y - topMargin);
+        retPos.Y = pos.Y - topMargin;
+    }
+
+    // Set the x pos to the end if the click was past the text and to the start if the click was before the text
+    if(pos.X < leftMargin)
+    {
+        retPos.X = 0;
+    }
+    else if(pos.X > target->getLength() + leftMargin)
+    {
+        retPos.X = target->getLength();
+    }
+    else
+    {
+        retPos.X = pos.X - leftMargin;
+    }
+
+    return retPos;
+}
+
+bool GuiEditor::inSelectionRange(COORD topLeft, COORD bottomRight, COORD pos, LinkedList<char>* line)
+{
+    // Check if the y is in between the two
+    if(topLeft.Y < pos.Y && bottomRight.Y > pos.Y)
+    {
+        // The whole line is selected in between lines
+        return (pos.X < (line->getLength()));
+    }
+    else if(pos.Y == topLeft.Y)
+    {
+        if(topLeft.Y != bottomRight.Y)
         {
-            // If the left mouse button is bring pressed
-            // Check if it's the first press of the left mouse button (it could be an event for second button being pressed)
-            if(mouseDownAt.X == -1 && mouseDownAt.Y == -1)
-            {
-                mouseDownAt = m.dwMousePosition;
-            }
+            // Only characters at or after the start are selected (if multiple lines)
+            return (pos.X >= topLeft.X && pos.X <= (line->getLength()));
         }
         else
         {
-            // If the left mouse button is not being pressed
-            if(mouseDownAt.X != -1 && mouseDownAt.Y != -1)
+            // If it's a single line, make sure it's between the bounds
+            return (pos.X >= topLeft.X && pos.X <= bottomRight.X);
+        }
+    }
+    else if(pos.Y == bottomRight.Y)
+    {
+        // Only the characters at or before the end are selected
+        return (pos.X <= bottomRight.X);
+    }
+    return false;
+
+}
+
+SMALL_RECT GuiEditor::getBoundingBox(COORD first, COORD second)
+{
+    // Generates a top left and bottom right from the two coordinates
+    COORD top, bottom;
+    short left, right;
+    if(first.Y < second.Y)
+    {
+        top = first;
+        bottom = second;
+    }
+    else
+    {
+        top = second;
+        bottom = first;
+    }
+
+    if(top.Y == bottom.Y)
+    {
+        left = min(top.X, bottom.X);
+        right = max(top.X, bottom.X);
+    }
+    else
+    {
+        left = top.X;
+        right = bottom.X;
+    }
+
+    return {left, top.Y, right, bottom.Y};
+}
+
+void GuiEditor::updateSelection(COORD start, COORD old, COORD current)
+{
+    // Check if the entire selection should be wiped
+    bool wipe = false;
+    if(current.X == -1)
+    {
+        wipe = true;
+    }
+
+    // Set up the bounding box to be both the old selection (so it can be cleared if it's no longer selected) and the new one
+    COORD topLeftNew, bottomRightNew;
+    SMALL_RECT currentRect = getBoundingBox(start, current);
+
+    topLeftNew.X = currentRect.Left;
+    topLeftNew.Y = currentRect.Top;
+    bottomRightNew.X = currentRect.Right;
+    bottomRightNew.Y = currentRect.Bottom;
+
+    short startY = min(min(current.Y, start.Y), old.Y);
+    short finishY = max(max(current.Y, start.Y), old.Y);
+
+    LinkedListNode<LinkedList<char>*>* line = lines.getNode(startY);
+    WORD* data;
+    for(short y = startY; y <= finishY; y++)
+    {
+        // Write a line of attributes (size is the length of text on this line)
+        data = new WORD[line->getData()->getLength()];
+        for(short x = 0; x < line->getData()->getLength(); x++)
+        {
+            // For each x value in the line, check if it should be selected
+            if(!wipe && inSelectionRange(topLeftNew, bottomRightNew, {x, y}, line->getData()))
             {
-                // Check if it's the same position (a single click with no movement)
-                if(mouseDownAt.X == m.dwMousePosition.X && mouseDownAt.Y == m.dwMousePosition.Y)
+                data[x] = BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN;
+            }
+            else
+            {
+                data[x] = WHITE_TEXT;
+            }
+        }
+
+        // Output the attributes
+        DWORD amount;
+        COORD writePos;
+        writePos.X = leftMargin;
+        writePos.Y = topMargin + y;
+        WriteConsoleOutputAttribute(screenBuffer, data, line->getData()->getLength(), writePos, &amount);
+
+        // Move on to the next line
+        line = line->getNext();
+        delete data;
+    }
+}
+
+void GuiEditor::clearSelection()
+{
+    // Clears the selection in memory and unrenders it
+    selectionMode = false;
+    updateSelection(selectionStart, selectionEnd, {-1, selectionEnd.Y});
+    selectionStart = selectionEnd = lastCell = {-1, -1};
+}
+
+void GuiEditor::copySelection()
+{
+    string data = "";
+    SMALL_RECT selection = getBoundingBox(selectionStart, selectionEnd);
+
+    // Use a similar algorithm as the updateSelection function
+    // Used to determine the range of characters that are in and out of the selection
+    LinkedListNode<LinkedList<char>*>* current = lines.getNode(selection.Top);
+    for(short y = selection.Top; y <= selection.Bottom; y++)
+    {
+        LinkedListNode<char>* currentCh = current->getData()->getStart();
+        for(short x = 0; x < current->getData()->getLength(); x++)
+        {
+            // For each x value in the line, check if it should be selected
+            if(inSelectionRange({selection.Left, selection.Top}, {selection.Right, selection.Bottom}, {x, y}, current->getData()))
+            {
+                data += currentCh->getData();
+            }
+            currentCh = currentCh->getNext();
+        }
+        current = current->getNext();
+
+        // Copy a newline if at the end of a line
+        if(y != selection.Bottom)
+        {
+            data += "\r\n";
+        }
+    }
+    // Add a null character for clipboard compatibility
+    data += '\0';
+
+    // Copy the text to the clipboard
+    OpenClipboard(nullptr);
+    EmptyClipboard();
+    HGLOBAL hg = GlobalAlloc(GMEM_MOVEABLE, data.size());
+    if(!hg)
+    {
+        CloseClipboard();
+        return;
+    }
+    memcpy(GlobalLock(hg), data.c_str(), data.size());
+    GlobalUnlock(hg);
+    SetClipboardData(CF_TEXT, hg);
+    CloseClipboard();
+    GlobalFree(hg);
+}
+
+void GuiEditor::pasteClipboard()
+{
+    // Handle the clipboard api and return in the case of an error
+    if(!OpenClipboard(nullptr))
+    {
+        return;
+    }
+    HANDLE hData = GetClipboardData(CF_TEXT);
+    if(hData == nullptr)
+    {
+        return;
+    }
+    char * pszText = static_cast<char*>( GlobalLock(hData) );
+    if(pszText == nullptr)
+    {
+        return;
+    }
+    string text(pszText);
+    GlobalUnlock(hData);
+    CloseClipboard();
+
+    // Treat the clipboard data as a sequence of typed input
+    for(int i = 0; i < text.length(); i++)
+    {
+        handleInput(text[i]);
+    }
+}
+
+void GuiEditor::handleMouse(MOUSE_EVENT_RECORD m)
+{
+    if((m.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) == FROM_LEFT_1ST_BUTTON_PRESSED)
+    {
+        // If the left mouse button is bring pressed
+        // Check if it's the first press of the left mouse button (it could be an event for second button being pressed)
+        if(mouseDownAt.X == -1 && mouseDownAt.Y == -1)
+        {
+            mouseDownAt = m.dwMousePosition;
+
+            if(selectionMode)
+            {
+                clearSelection();
+            }
+        }
+
+        // Set cursor pos
+        COORD downText = getTextPos(m.dwMousePosition);
+        cursorRelativeX = downText.X;
+        cursorRelativeY = downText.Y;
+        currentLine = lines.get(cursorRelativeY);
+        updateCursorPos();
+    }
+    else
+    {
+        mouseDownAt = {-1, -1};
+    }
+
+    if((m.dwEventFlags & MOUSE_MOVED) == MOUSE_MOVED && mouseDownAt.X != -1 && mouseDownAt.Y != -1)
+    {
+        if(!selectionMode)
+        {
+            // Set up the selection
+            selectionMode = true;
+            lastCell = m.dwMousePosition;
+            selectionStart = selectionEnd = getTextPos(m.dwMousePosition);
+        }
+        else
+        {
+            // Check to see if the mouse has moved cells
+            if(m.dwMousePosition.X != lastCell.X || m.dwMousePosition.Y != lastCell.Y)
+            {
+                lastCell = m.dwMousePosition;
+                // Check to see if the new textPos is different
+                COORD text = getTextPos(m.dwMousePosition);
+                if(text.X != selectionEnd.X || text.Y != selectionEnd.Y)
                 {
-                    if(mouseDownAt.Y > topMargin + lines.getLength() - 1)
-                    {
-                        currentLine = lines.getEnd()->getData();
-                        cursorRelativeY = lines.getLength() - 1;
-                    }
-                    else if(mouseDownAt.Y < topMargin)
-                    {
-                        currentLine = lines.getStart()->getData();
-                        cursorRelativeY = 0;
-                    }
-                    else
-                    {
-                        currentLine = lines.get(mouseDownAt.Y - topMargin);
-                        cursorRelativeY = mouseDownAt.Y - topMargin;
-                    }
-
-                    if(mouseDownAt.X < leftMargin)
-                    {
-                        cursorRelativeX = 0;
-                    }
-                    else if(mouseDownAt.X > currentLine->getLength() + leftMargin)
-                    {
-                        cursorRelativeX = currentLine->getLength();
-                    }
-                    else
-                    {
-                        cursorRelativeX = mouseDownAt.X - leftMargin;
-                    }
-
-                    updateCursorPos();
+                    // Update the selection
+                    updateSelection(selectionStart, selectionEnd, text);
+                    selectionEnd = text;
                 }
-                mouseDownAt = {-1, -1};
             }
         }
     }
@@ -254,6 +494,11 @@ void GuiEditor::handleInput(int code)
 {
     if(code == KEY_ENTER)
     {
+        if(selectionMode)
+        {
+            clearSelection();
+        }
+
         // Move everything else down a line
         if(cursorRelativeY + 1 < lines.getLength())
         {
@@ -280,6 +525,11 @@ void GuiEditor::handleInput(int code)
     }
     else if(code == KEY_BACKSPACE)
     {
+        if(selectionMode)
+        {
+            clearSelection();
+        }
+
         // Backspace a character
         if(cursorRelativeX == 0)
         {
@@ -317,6 +567,11 @@ void GuiEditor::handleInput(int code)
     // Only print valid ascii characters (>= 32)
     else if(code >= 32)
     {
+        if(selectionMode)
+        {
+            clearSelection();
+        }
+
         // If it's any character without a special case
         if(cursorRelativeX < currentLine->getLength())
         {
@@ -340,7 +595,17 @@ void GuiEditor::handleInput(int code)
 
 void GuiEditor::handleCtrl(int code)
 {
-
+    if(code == 'c')
+    {
+        if(selectionMode)
+        {
+            copySelection();
+        }
+    }
+    else if(code == 'v')
+    {
+        pasteClipboard();
+    }
 }
 
 void GuiEditor::handleArrow(int code)

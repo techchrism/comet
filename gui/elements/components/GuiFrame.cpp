@@ -71,6 +71,17 @@ void GuiFrame::writeOutput(short x, short y, CHAR_INFO *text, short columns, sho
     WriteConsoleOutput(this->screenBuffer, text, {columns, rows}, {0, 0}, &box);
 }
 
+void GuiFrame::writeAttribute(short x, short y, WORD attribute, short length)
+{
+    DWORD written;
+    WORD data[length];
+    for(int i = 0; i < length; i++)
+    {
+        data[i] = attribute;
+    }
+    WriteConsoleOutputAttribute(this->screenBuffer, data, length, {x, y}, &written);
+}
+
 void GuiFrame::writeString(short x, short y, string data)
 {
     CHAR_INFO chars[data.length()];

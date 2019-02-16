@@ -28,6 +28,7 @@ protected:
     void setCursorPos(short x, short y);
     CHAR_INFO* centerText(string* text, int textLength, int horizontalSize);
     void writeOutput(short x, short y, CHAR_INFO* text, short columns, short rows);
+    void writeAttribute(short x, short y, WORD attribute, short length);
 
     void move(short x, short y, short length, short height, short distanceX, short distanceY, char fillch);
 public:

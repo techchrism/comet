@@ -33,8 +33,20 @@ private:
     void drawBorders(short newX, short newY);
     void updateCursorPos();
 
+    // Selection functions
+    void clearSelection();
+    void updateSelection(COORD start, COORD old, COORD current);
+    bool inSelectionRange(COORD topLeft, COORD bottomRight, COORD pos, LinkedList<char>* line);
+    SMALL_RECT getBoundingBox(COORD first, COORD second);
+    void copySelection();
+    void pasteClipboard();
+
+    COORD getTextPos(COORD pos);
+
     COORD mouseDownAt = {-1, -1};
-    COORD selectionTo = {-1, -1};
+    COORD selectionStart = {-1, -1};
+    COORD selectionEnd = {-1, -1};
+    COORD lastCell = {-1, -1};
     bool selectionMode = false;
 public:
     GuiEditor();
