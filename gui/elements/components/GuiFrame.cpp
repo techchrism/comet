@@ -84,10 +84,15 @@ void GuiFrame::writeAttribute(short x, short y, WORD attribute, short length)
 
 void GuiFrame::writeString(short x, short y, string data)
 {
+    writeString(x, y, data, WHITE_TEXT);
+}
+
+void GuiFrame::writeString(short x, short y, string data, WORD attribute)
+{
     CHAR_INFO chars[data.length()];
     for(int i = 0; i < data.length(); i++)
     {
-        chars[i].Attributes = WHITE_TEXT;
+        chars[i].Attributes = attribute;
         chars[i].Char.AsciiChar = data[i];
     }
     writeOutput(x, y, chars, data.length(), 1);

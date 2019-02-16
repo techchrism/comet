@@ -29,6 +29,8 @@ protected:
     CHAR_INFO* centerText(string* text, int textLength, int horizontalSize);
     void writeOutput(short x, short y, CHAR_INFO* text, short columns, short rows);
     void writeAttribute(short x, short y, WORD attribute, short length);
+    void writeString(short x, short y, string data);
+    void writeString(short x, short y, string data, WORD attribute);
 
     void move(short x, short y, short length, short height, short distanceX, short distanceY, char fillch);
 public:
@@ -41,7 +43,6 @@ public:
 
     void setManager(GuiManager* manager);
     HANDLE getBuffer();
-    void writeString(short x, short y, string data);
 };
 
 #endif //THEEDITOR_GUIFRAME_H

@@ -47,7 +47,7 @@ int main()
     GuiManager manager;
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
     manager.push(new GuiMainMenu());
-    manager.push(new GuiEditor());
+    //manager.push(new GuiEditor());
 
     // Start animation worker thread
     CreateThread(nullptr, 0, thread_func, &manager, 0, nullptr);

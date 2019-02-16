@@ -92,7 +92,7 @@ bool GuiManager::handleEvents()
             }
         }
     }
-    return true;
+    return (frameStack.getLength() != 1);
 }
 
 void GuiManager::handleArrow(int code)

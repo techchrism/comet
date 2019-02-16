@@ -11,10 +11,10 @@
 
 #define HEADER_HEIGHT 6
 #define HEADER_LENGTH 45
-#define OPTIONS_LENGTH 5
+#define OPTIONS_LENGTH 3
 #define COMETS_COUNT 4
 
-class GuiMainMenu : public GuiFrame// : public GuiVerticalMenu
+class GuiMainMenu : public GuiFrame
 {
 private:
     LinkedList<GuiStar*> stars;
@@ -27,13 +27,18 @@ private:
 
     bool resizeIgnore = false;
     int resizeCountdown = 0;
+
+    short selectedOption = 0;
+    short selectionLeftX, selectionRightX, selectionTopY;
+    void renderSelection();
 protected:
-    //void onOptionSelect(string name, int pos) override;
     void handleAnimationFrame(unsigned long count) override;
 public:
     GuiMainMenu();
     ~GuiMainMenu();
     void onResize() override;
+    void handleInput(int code) override;
+    void handleArrow(int code) override;
 };
 
 

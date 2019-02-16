@@ -9,17 +9,6 @@
 
 GuiMainMenu::GuiMainMenu()
 {
-    /*string* header = new string[1];
-    header[0] = "Main Menu";
-
-    string* options = new string[3];
-    options[0] = "12345";
-    options[1] = "2";
-    options[2] = "asdfjhlksdf";*/
-
-    //this->setup(header, 1, options, 3);
-
-
     /*header[0] = " ██████╗ ██████╗ ███╗   ███╗███████╗████████╗";
     header[1] = "██╔════╝██╔═══██╗████╗ ████║██╔════╝╚══██╔══╝";
     header[2] = "██║     ██║   ██║██╔████╔██║█████╗     ██║   ";
@@ -91,7 +80,19 @@ void GuiMainMenu::render()
     {
         for(int c = 0; c < HEADER_LENGTH; c++)
         {
-            headerData[c].Attributes = WHITE_TEXT;
+            if(header[i][c] == (char) 219)
+            {
+                headerData[c].Attributes = 11;
+            }
+            else if(header[i][c] == ' ')
+            {
+                headerData[c].Attributes = WHITE_TEXT;
+            }
+            else
+            {
+                headerData[c].Attributes = 9;
+            }
+
             if(header[i].length() > c)
             {
                 headerData[c].Char.AsciiChar = header[i][c];
@@ -109,10 +110,32 @@ void GuiMainMenu::render()
     CHAR_INFO taglineData[tagline.length()];
     for(int i = 0; i < tagline.length(); i++)
     {
-        taglineData[i].Attributes = WHITE_TEXT;
+        taglineData[i].Attributes = 14;
         taglineData[i].Char.AsciiChar = tagline[i];
     }
     writeOutput(leftX + taglineOffset, topY + HEADER_HEIGHT + 2, taglineData, tagline.length(), 1);
+
+    // Print the options
+    string options[OPTIONS_LENGTH];
+    options[0] = " Create New File";
+    options[1] = "Open File";
+    options[2] = "Quit";
+
+    int longest = 0;
+    selectionTopY = topY + HEADER_HEIGHT + 4;
+    for(int i = 0; i < OPTIONS_LENGTH; i++)
+    {
+        if(options[i].length() > longest)
+        {
+            longest = options[i].length();
+        }
+        writeString((buffInfo.dwSize.X / 2) - (options[i].length() / 2), selectionTopY + i, options[i], 11);
+    }
+
+    selectionLeftX = (buffInfo.dwSize.X / 2) - (longest / 2) - 1;
+    selectionRightX = selectionLeftX + longest + 2;
+
+    renderSelection();
 
     // Iterate through the buffer to generate stars
     int segmentXSize = 10;
@@ -145,6 +168,23 @@ void GuiMainMenu::render()
     }
 }
 
+void GuiMainMenu::renderSelection()
+{
+    CHAR_INFO data[OPTIONS_LENGTH];
+    for(int i = 0; i < OPTIONS_LENGTH; i++)
+    {
+        data[i].Char.AsciiChar = ' ';
+        data[i].Attributes = WHITE_TEXT;
+    }
+
+    data[selectedOption].Attributes = 12;
+    data[selectedOption].Char.AsciiChar = '>';
+    writeOutput(selectionLeftX, selectionTopY, data, 1, OPTIONS_LENGTH);
+
+    data[selectedOption].Char.AsciiChar = '<';
+    writeOutput(selectionRightX, selectionTopY, data, 1, OPTIONS_LENGTH);
+}
+
 void GuiMainMenu::onResize()
 {
     resizeIgnore = true;
@@ -167,6 +207,53 @@ void GuiMainMenu::onResize()
     render();
     resizeCountdown = 10;
     resizeIgnore = false;
+}
+
+void GuiMainMenu::handleArrow(int code)
+{
+    if(code == KEY_DOWN)
+    {
+        if(selectedOption == OPTIONS_LENGTH - 1)
+        {
+            selectedOption = 0;
+        }
+        else
+        {
+            selectedOption++;
+        }
+        renderSelection();
+    }
+    else if(code == KEY_UP)
+    {
+        if(selectedOption == 0)
+        {
+            selectedOption = OPTIONS_LENGTH - 1;
+        }
+        else
+        {
+            selectedOption--;
+        }
+        renderSelection();
+    }
+}
+
+void GuiMainMenu::handleInput(int code)
+{
+    if(code == KEY_ENTER)
+    {
+        if(selectedOption == 0)
+        {
+            manager->push(new GuiEditor());
+        }
+        else if(selectedOption == 1)
+        {
+            //todo open file
+        }
+        else if(selectedOption == 2)
+        {
+            manager->pop();
+        }
+    }
 }
 
 void GuiMainMenu::handleAnimationFrame(unsigned long count)
