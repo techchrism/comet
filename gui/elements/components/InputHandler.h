@@ -5,10 +5,6 @@
 #ifndef THEEDITOR_INPUTHANDLER_H
 #define THEEDITOR_INPUTHANDLER_H
 
-/*#define KEY_UP 72
-#define KEY_DOWN 80
-#define KEY_LEFT 75
-#define KEY_RIGHT 77*/
 #define KEY_UP 0x26
 #define KEY_DOWN 0x28
 #define KEY_LEFT 0x25
