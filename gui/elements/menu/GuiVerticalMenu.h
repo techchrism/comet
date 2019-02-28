@@ -33,6 +33,7 @@ private:
 protected:
     SMALL_RECT getBox() override;
     void childRender() override;
+    void setOption(int pos, string replacement);
 
     virtual void onRender() {};
     virtual void onOptionSelect(string name, int pos) = 0;

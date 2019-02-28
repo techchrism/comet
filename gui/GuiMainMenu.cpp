@@ -28,7 +28,7 @@ GuiMainMenu::GuiMainMenu()
     options[1] = "Open File";
     options[2] = "Quit";
 
-    setup(header, HEADER_LENGTH, HEADER_HEIGHT, options, OPTIONS_LENGTH, 2, 0);
+    setup(header, HEADER_LENGTH, HEADER_HEIGHT, options, OPTIONS_LENGTH, 6, 0);
     render();
 }
 
@@ -45,6 +45,13 @@ void GuiMainMenu::onRender()
         text[i].Attributes = 14;
     }
     printUnderHeader(text, 0);
+
+    tagline[0] = "\xDA Mouse Selections \xBF";
+    printUnderHeader(centerText(tagline, 1, lineLength), 2);
+    tagline[0] = "\xB3 Resizable Window \xB3";
+    printUnderHeader(centerText(tagline, 1, lineLength), 3);
+    tagline[0] = "\xC0  Fast Rendering  \xD9";
+    printUnderHeader(centerText(tagline, 1, lineLength), 4);
 }
 
 void GuiMainMenu::onOptionSelect(string name, int pos)

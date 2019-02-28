@@ -26,7 +26,6 @@ SMALL_RECT GuiVerticalMenu::getBox()
     short boundingBoxHeight = 1 + headerHeight + 1 + spaceAfterHeader + optionsLength + 1 + spaceAfterOptions;
     short boundingBoxWidth = headerLength + 4;
     SMALL_RECT ret;
-    //short leftX, topY, rightX, bottomY;
     ret.Left = (buffInfo.dwSize.X / 2) - (boundingBoxWidth / 2);
     ret.Top = (buffInfo.dwSize.Y / 2) - (boundingBoxHeight / 2);
     ret.Right = ret.Left + boundingBoxWidth;
@@ -75,6 +74,12 @@ void GuiVerticalMenu::childRender()
     onRender();
 }
 
+void GuiVerticalMenu::setOption(int pos, string replacement)
+{
+    options[pos] = replacement;
+    renderOptions();
+}
+
 void GuiVerticalMenu::renderOptions()
 {
     SMALL_RECT box = getBox();
@@ -100,6 +105,7 @@ void GuiVerticalMenu::printUnderHeader(CHAR_INFO *data, short yPos)
     SMALL_RECT box = getBox();
     short boxGap = box.Right - box.Left;
     writeOutput(box.Left, posAfterHeader + yPos, data, boxGap, 1);
+    delete data;
 }
 
 void GuiVerticalMenu::printUnderOptions(CHAR_INFO *data, short yPos)
@@ -107,6 +113,7 @@ void GuiVerticalMenu::printUnderOptions(CHAR_INFO *data, short yPos)
     SMALL_RECT box = getBox();
     short boxGap = box.Right - box.Left;
     writeOutput(box.Left, posAfterOptions + yPos, data, boxGap, 1);
+    delete data;
 }
 
 void GuiVerticalMenu::renderSelection()
