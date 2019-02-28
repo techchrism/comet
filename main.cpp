@@ -5,7 +5,6 @@
 
 #include "internal/OptionsManager.h"
 #include "gui/GuiManager.h"
-#include "gui/elements/components/GuiMenu.h"
 #include "gui/GuiMainMenu.h"
 #include "gui/GuiEditor.h"
 #include "gui/GuiBase.h"

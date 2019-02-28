@@ -4,7 +4,6 @@
 
 #include <afxres.h>
 #include "GuiMainMenu.h"
-#include "elements/components/GuiMenu.h"
 #include "GuiEditor.h"
 
 GuiMainMenu::GuiMainMenu()
