@@ -27,6 +27,8 @@ protected:
     // Convenience functions
     void setCursorPos(short x, short y);
     CHAR_INFO* centerText(string* text, int textLength, int horizontalSize);
+    CHAR_INFO* centerText(string text, int horizontalSize);
+    CHAR_INFO* setColor(CHAR_INFO* data, int length, WORD color);
     void writeOutput(short x, short y, CHAR_INFO* text, short columns, short rows);
     void writeAttribute(short x, short y, WORD attribute, short length);
     void writeString(short x, short y, string data);

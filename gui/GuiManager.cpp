@@ -25,6 +25,16 @@ GuiManager::~GuiManager()
     delete this->options;
 }
 
+void GuiManager::saveState()
+{
+    LinkedListNode<GuiFrame*>* current = frameStack.getStart();
+    while(current != nullptr)
+    {
+        current->getData()->saveState();
+        current = current->getNext();
+    }
+}
+
 // Push and activate the new frame
 void GuiManager::push(GuiFrame* frame)
 {

@@ -3,8 +3,33 @@
 //
 
 #include <afxres.h>
+#include <fstream>
 #include "GuiEditor.h"
 #include "GuiEditorMenu.h"
+#include "GuiTextBox.h"
+
+GuiEditor::GuiEditor(ifstream& fstr)
+{
+    // Set up the buffer
+    this->screenBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
+                                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                                   NULL,
+                                                   CONSOLE_TEXTMODE_BUFFER,
+                                                   NULL);
+    SetConsoleMode(screenBuffer, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT & ~ENABLE_QUICK_EDIT_MODE);
+
+    for(string line; getline(fstr, line);)
+    {
+        LinkedList<char>* data = new LinkedList<char>;
+        for(int i = 0; i < line.length(); i++)
+        {
+            data->push(line[i]);
+        }
+        lines.push(data);
+    }
+    currentLine = lines.getEnd()->getData();
+    fstr.close();
+}
 
 GuiEditor::GuiEditor()
 {
@@ -16,11 +41,8 @@ GuiEditor::GuiEditor()
                                                    NULL);
     SetConsoleMode(screenBuffer, ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT & ~ENABLE_QUICK_EDIT_MODE);
 
-    lines.add(0, new LinkedList<char>);
+    lines.push(new LinkedList<char>);
     currentLine = lines.get(0);
-
-    header = "[Comet Editor]";
-    footer = "[Esc \xAF Menu]";
 }
 
 void GuiEditor::onResize()
@@ -36,7 +58,6 @@ void GuiEditor::onResize()
 
 void GuiEditor::completeRender()
 {
-    //todo properly redraw the selection
     if(selectionMode)
     {
         clearSelection();
@@ -64,7 +85,7 @@ void GuiEditor::completeRender()
     short footerPos = (borderXSize / 2) - (footer.length() / 2);
     writeString(footerPos, borderYSize - 1, footer, manager->options->getBorderColor());
 
-    // Iterate through, drawing the lineas we go
+    // Iterate through, drawing the lines as we go
     short lineLength = borderXSize - (leftMargin * 2);
     short currentLineNumber = 0;
     CHAR_INFO line[lineLength];
@@ -617,6 +638,49 @@ void GuiEditor::handleCtrl(int code)
         selectionEnd.X = lines.getEnd()->getData()->getLength() - 1;
         selectionEnd.Y = lines.getLength() - 1;
         updateSelection(selectionStart, selectionEnd, selectionEnd);
+    }
+}
+
+void GuiEditor::saveState()
+{
+    // Save the file
+    ofstream data;
+    data.open("./saved.txt");
+    if(!data.is_open())
+    {
+        // Show error message
+        string* data = new string[6];
+        data[0] = "Error";
+        data[1] = "";
+        data[2] = "File \"saved.txt\" could not be opened";
+        data[3] = "";
+        data[4] = "Press any key to return";
+        manager->push(new GuiTextBox(data, 5, BACKGROUND_RED));
+    }
+    else
+    {
+        LinkedListNode<LinkedList<char>*>* current = lines.getStart();
+        while(current != nullptr)
+        {
+            LinkedListNode<char>* currentch = current->getData()->getStart();
+            while(currentch != nullptr)
+            {
+                data << currentch->getData();
+                currentch = currentch->getNext();
+            }
+            data << endl;
+            current = current->getNext();
+        }
+        data.close();
+
+        // Show success message
+        string* data = new string[6];
+        data[0] = "Success";
+        data[1] = "";
+        data[2] = "File \"saved.txt\" was saved successfully";
+        data[3] = "";
+        data[4] = "Press any key to return";
+        manager->push(new GuiTextBox(data, 5, BACKGROUND_GREEN));
     }
 }
 

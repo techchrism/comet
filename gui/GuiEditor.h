@@ -14,8 +14,8 @@ private:
     LinkedList<LinkedList<char>*> lines;
     LinkedList<char>* currentLine;
 
-    string header;
-    string footer;
+    string header = "[Comet Editor]";
+    string footer = "[Esc \xAF Menu]";
 
     // The cursor position relative to the top-left margins
     // Starts at 0
@@ -50,12 +50,16 @@ private:
     bool selectionMode = false;
 public:
     GuiEditor();
+    GuiEditor(ifstream& fstr);
+
     void handleArrow(int code) override;
     void handleInput(int code) override;
     void handleCtrl(int code) override;
     void handleMouse(MOUSE_EVENT_RECORD m) override;
     void onResize() override;
     void onActivate() override;
+
+    void saveState() override;
 };
 
 

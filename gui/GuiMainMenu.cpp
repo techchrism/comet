@@ -3,6 +3,7 @@
 //
 
 #include <afxres.h>
+#include <fstream>
 #include "GuiMainMenu.h"
 #include "GuiEditor.h"
 #include "GuiTextBox.h"
@@ -28,7 +29,7 @@ GuiMainMenu::GuiMainMenu()
     options[1] = "Open File";
     options[2] = "Quit";
 
-    setup(header, HEADER_LENGTH, HEADER_HEIGHT, options, OPTIONS_LENGTH, 6, 0);
+    setup(header, HEADER_LENGTH, HEADER_HEIGHT, options, OPTIONS_LENGTH, 7, 0);
     render();
 }
 
@@ -37,21 +38,12 @@ void GuiMainMenu::onRender()
     SMALL_RECT box = getBox();
     short lineLength = box.Right - box.Left;
 
-    string tagline[1];
-    tagline[0] = "A command-line text editor for the stars";
-    CHAR_INFO* text = centerText(tagline, 1, lineLength);
-    for(int i = 0; i < lineLength; i++)
-    {
-        text[i].Attributes = 14;
-    }
-    printUnderHeader(text, 0);
+    printUnderHeader(setColor(centerText("A command-line text editor for the stars", lineLength), lineLength, 14), 0);
 
-    tagline[0] = "\xDA Mouse Selections \xBF";
-    printUnderHeader(centerText(tagline, 1, lineLength), 2);
-    tagline[0] = "\xB3 Resizable Window \xB3";
-    printUnderHeader(centerText(tagline, 1, lineLength), 3);
-    tagline[0] = "\xC0  Fast Rendering  \xD9";
-    printUnderHeader(centerText(tagline, 1, lineLength), 4);
+    printUnderHeader(centerText("\xDA Mouse Selections \xBF", lineLength), 2);
+    printUnderHeader(centerText("\xB3 Resizable Window \xB3", lineLength), 3);
+    printUnderHeader(centerText("\xB3  Saved Options   \xB3", lineLength), 4);
+    printUnderHeader(centerText("\xC0  Fast Rendering  \xD9", lineLength), 5);
 }
 
 void GuiMainMenu::onOptionSelect(string name, int pos)
@@ -62,12 +54,25 @@ void GuiMainMenu::onOptionSelect(string name, int pos)
     }
     else if(pos == 1)
     {
-        //todo open file
-        string* data = new string[3];
-        data[0] = "line 1";
-        data[1] = "!";
-        data[2] = "AAAAAAAAAAAAAAAA 7777777777777777 BBBBB";
-        manager->push(new GuiTextBox(data, 3, BACKGROUND_RED));
+        // Try opening the file
+        ifstream fstr;
+        fstr.open("./saved.txt");
+        if(!fstr.is_open())
+        {
+            // Show error message
+            string* data = new string[6];
+            data[0] = "Error";
+            data[1] = "";
+            data[2] = "File \"saved.txt\" could not be opened";
+            data[3] = "(Does it exist?)";
+            data[4] = "";
+            data[5] = "Press any key to return";
+            manager->push(new GuiTextBox(data, 6, BACKGROUND_RED));
+        }
+        else
+        {
+            manager->push(new GuiEditor(fstr));
+        }
     }
     else if(pos == 2)
     {

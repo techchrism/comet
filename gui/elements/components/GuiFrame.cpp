@@ -35,6 +35,7 @@ void GuiFrame::move(short x, short y, short length, short height, short distance
 
 CHAR_INFO* GuiFrame::centerText(string *text, int textLength, int horizontalSize)
 {
+    // Centers text line-by-line
     CHAR_INFO* textBuffer = new CHAR_INFO[horizontalSize * textLength];
     for(int y = 0; y < textLength; y++)
     {
@@ -46,6 +47,7 @@ CHAR_INFO* GuiFrame::centerText(string *text, int textLength, int horizontalSize
             int difference = horizontalSize - text[y].length();
             int leftGap = (difference / 2);
 
+            // If it's in range to start printing text
             if(x < leftGap || x >= (leftGap + text[y].length()))
             {
                 c.Char.AsciiChar = ' ';
@@ -60,6 +62,13 @@ CHAR_INFO* GuiFrame::centerText(string *text, int textLength, int horizontalSize
     }
 
     return textBuffer;
+}
+
+CHAR_INFO* GuiFrame::centerText(string text, int horizontalSize)
+{
+    string arr[1];
+    arr[0] = text;
+    return centerText(arr, 1, horizontalSize);
 }
 
 void GuiFrame::writeOutput(short x, short y, CHAR_INFO *text, short columns, short rows)
@@ -87,8 +96,18 @@ void GuiFrame::writeString(short x, short y, string data)
     writeString(x, y, data, WHITE_TEXT);
 }
 
+CHAR_INFO* GuiFrame::setColor(CHAR_INFO* data, int length, WORD color)
+{
+    for(int i = 0; i < length; i++)
+    {
+        data[i].Attributes = color;
+    }
+    return data;
+}
+
 void GuiFrame::writeString(short x, short y, string data, WORD attribute)
 {
+    // Creates a CHAR_INFO array of the right size and fills it with the string data
     CHAR_INFO chars[data.length()];
     for(int i = 0; i < data.length(); i++)
     {

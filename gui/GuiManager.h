@@ -29,6 +29,7 @@ public:
     void pop();
     int getLength();
     bool handleEvents();
+    void saveState();
 
     void handleArrow(int code) override;
     void handleInput(int code) override;

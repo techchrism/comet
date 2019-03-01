@@ -16,30 +16,39 @@ GuiEditorMenu::GuiEditorMenu()
     ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝
      */
     string* header = new string[6];
-    header[0] = "\xDB\xDB\xDB\xBB   \xDB\xDB\xDB\xBB\xDB\xDB\xDB\xDB\xDB\xDB\xDB\xBB\xDB\xDB\xDB\xBB   \xDB\xDB\xBB\xDB\xDB\xBB   \xDB\xDB\xBB";
-    header[1] = "\xDB\xDB\xDB\xDB\xBB \xDB\xDB\xDB\xDB\xBA\xDB\xDB\xC9\xCD\xCD\xCD\xCD\xBC\xDB\xDB\xDB\xDB\xBB  \xDB\xDB\xBA\xDB\xDB\xBA   \xDB\xDB\xBA";
-    header[2] = "\xDB\xDB\xC9\xDB\xDB\xDB\xDB\xC9\xDB\xDB\xBA\xDB\xDB\xDB\xDB\xDB\xBB  \xDB\xDB\xC9\xDB\xDB\xBB \xDB\xDB\xBA\xDB\xDB\xBA   \xDB\xDB\xBA";
-    header[3] = "\xDB\xDB\xBA\xC8\xDB\xDB\xC9\xBC\xDB\xDB\xBA\xDB\xDB\xC9\xCD\xCD\xBC  \xDB\xDB\xBA\xC8\xDB\xDB\xBB\xDB\xDB\xBA\xDB\xDB\xBA   \xDB\xDB\xBA";
-    header[4] = "\xDB\xDB\xBA \xC8\xCD\xBC \xDB\xDB\xBA\xDB\xDB\xDB\xDB\xDB\xDB\xDB\xBB\xDB\xDB\xBA \xC8\xDB\xDB\xDB\xDB\xBA\xC8\xDB\xDB\xDB\xDB\xDB\xDB\xC9\xBC";
-    header[5] = "\xC8\xCD\xBC     \xC8\xCD\xBC\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xBC\xC8\xCD\xBC  \xC8\xCD\xCD\xCD\xBC \xC8\xCD\xCD\xCD\xCD\xCD\xBC ";
+    header[0] = "    \xDB\xDB\xDB\xBB   \xDB\xDB\xDB\xBB\xDB\xDB\xDB\xDB\xDB\xDB\xDB\xBB\xDB\xDB\xDB\xBB   \xDB\xDB\xBB\xDB\xDB\xBB   \xDB\xDB\xBB    ";
+    header[1] = "    \xDB\xDB\xDB\xDB\xBB \xDB\xDB\xDB\xDB\xBA\xDB\xDB\xC9\xCD\xCD\xCD\xCD\xBC\xDB\xDB\xDB\xDB\xBB  \xDB\xDB\xBA\xDB\xDB\xBA   \xDB\xDB\xBA    ";
+    header[2] = "    \xDB\xDB\xC9\xDB\xDB\xDB\xDB\xC9\xDB\xDB\xBA\xDB\xDB\xDB\xDB\xDB\xBB  \xDB\xDB\xC9\xDB\xDB\xBB \xDB\xDB\xBA\xDB\xDB\xBA   \xDB\xDB\xBA    ";
+    header[3] = "    \xDB\xDB\xBA\xC8\xDB\xDB\xC9\xBC\xDB\xDB\xBA\xDB\xDB\xC9\xCD\xCD\xBC  \xDB\xDB\xBA\xC8\xDB\xDB\xBB\xDB\xDB\xBA\xDB\xDB\xBA   \xDB\xDB\xBA    ";
+    header[4] = "    \xDB\xDB\xBA \xC8\xCD\xBC \xDB\xDB\xBA\xDB\xDB\xDB\xDB\xDB\xDB\xDB\xBB\xDB\xDB\xBA \xC8\xDB\xDB\xDB\xDB\xBA\xC8\xDB\xDB\xDB\xDB\xDB\xDB\xC9\xBC    ";
+    header[5] = "    \xC8\xCD\xBC     \xC8\xCD\xBC\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xBC\xC8\xCD\xBC  \xC8\xCD\xCD\xCD\xBC \xC8\xCD\xCD\xCD\xCD\xCD\xBC     ";
 
-    string* options = new string[4];
-    options[0] = "Border Type";
-    options[1] = "Corner Type";
-    options[2] = " Border Color";
-    options[3] = " Text Color";
+    string* options = new string[6];
+    options[0] = "Save";
+    options[1] = " Exit to Main Menu";
+    for(int i = 2; i <= 5; i++)
+    {
+        options[i] = "";
+        options[i] += '\xAE';
+    }
+    options[2] += "Border Style";
+    options[3] += "Corner Style";
+    options[4] += "Border Color";
+    options[5] += "Text Color";
+    for(int i = 2; i <= 5; i++)
+    {
+        options[i] += '\xAF';
+    }
 
-    setup(header, 38, 6, options, 4, 0, 4);
+    // Header, header width, header height, options, options length, space after header, space after options
+    setup(header, 46, 6, options, 6, 12, 4);
 }
 
 void GuiEditorMenu::drawPreview()
 {
     SMALL_RECT box = getBox();
     short lineLength = box.Right - box.Left;
-    short previewLength = 11;
-    short start = (lineLength / 2) - (previewLength / 2);
 
-    CHAR_INFO line[lineLength];
     string text[3];
     text[0] = manager->options->getTopLeftCorner();
     text[2] = manager->options->getBottomLeftCorner();
@@ -135,23 +144,57 @@ void GuiEditorMenu::changeSelected(int selected, int by)
 
 void GuiEditorMenu::onRender()
 {
+    SMALL_RECT box = getBox();
+    short lineLength = box.Right - box.Left;
+
+    short i = 0;
+    printUnderHeader(setColor(centerText("[CONTROLS]", lineLength), lineLength, 14), i++);
+    //printUnderHeader(centerText("<Mouse>", lineLength), i++);
+    printUnderHeader(centerText("Click to set cursor pos", lineLength), i++);
+    printUnderHeader(centerText("Drag to create selection", lineLength), i++);
+    //printUnderHeader(centerText("<Keyboard>", lineLength), i++);
+    printUnderHeader(centerText("Arrows move cursor", lineLength), i++);
+    printUnderHeader(centerText("CTRL+C/V to copy/paste; CTRL+A to select all", lineLength), i++);
+    printUnderHeader(centerText("Esc to open / close menu", lineLength), i++);
+    i++;
+    printUnderHeader(setColor(centerText("[OPTIONS]", lineLength), lineLength, 14), i++);
+    printUnderHeader(centerText("Menu items that look like \xAEthis\xAF", lineLength), i++);
+    printUnderHeader(centerText("can be cycled with left / right / enter", lineLength), i++);
+
     drawPreview();
 }
 
 void GuiEditorMenu::onOptionSelect(string name, int pos)
 {
-    changeSelected(pos, 1);
+    if(pos >= 2)
+    {
+        changeSelected(pos - 2, 1);
+    }
+    else if(pos == 0)
+    {
+        // Return to editor
+        manager->saveState();
+    }
+    else if(pos == 1)
+    {
+        // Return to main menu
+        manager->pop();
+        manager->pop();
+    }
 }
 
 void GuiEditorMenu::onOptionCycle(string name, int pos, int code)
 {
-    if(code == KEY_LEFT)
+    if(pos >= 2)
     {
-        changeSelected(pos, -1);
-    }
-    else
-    {
-        changeSelected(pos, 1);
+        if(code == KEY_LEFT)
+        {
+            changeSelected(pos - 2, -1);
+        }
+        else
+        {
+            changeSelected(pos - 2, 1);
+        }
     }
 }
 

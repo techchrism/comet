@@ -97,7 +97,7 @@ unsigned char OptionsManager::getTopLeftCorner()
     }
     else
     {
-        return '+';
+        return (unsigned char) 219;
     }
 }
 
@@ -113,7 +113,7 @@ unsigned char OptionsManager::getTopRightCorner()
     }
     else
     {
-        return '+';
+        return (unsigned char) 219;
     }
 }
 
@@ -129,7 +129,7 @@ unsigned char OptionsManager::getBottomLeftCorner()
     }
     else
     {
-        return '+';
+        return (unsigned char) 219;
     }
 }
 
@@ -145,7 +145,7 @@ unsigned char OptionsManager::getBottomRightCorner()
     }
     else
     {
-        return '+';
+        return (unsigned char) 219;
     }
 }
 

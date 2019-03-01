@@ -11,8 +11,6 @@
 class GuiEditorMenu : public GuiVerticalMenu
 {
 private:
-    int test = 1;
-
     void drawPreview();
     void changeSelected(int selected, int by);
 protected:
