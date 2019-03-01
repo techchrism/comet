@@ -6,9 +6,9 @@
 #include "GuiManager.h"
 #include "../internal/OptionsManager.h"
 
-GuiManager::GuiManager(OptionsManager options)
+GuiManager::GuiManager()
 {
-    this->options = options;
+    this->options = new OptionsManager();
 
     inputHandle = GetStdHandle(STD_INPUT_HANDLE);
 
@@ -22,19 +22,15 @@ GuiManager::GuiManager(OptionsManager options)
 GuiManager::~GuiManager()
 {
     this->frameStack.removeAll();
-}
-
-OptionsManager GuiManager::getOptions()
-{
-    return options;
+    delete this->options;
 }
 
 // Push and activate the new frame
 void GuiManager::push(GuiFrame* frame)
 {
     currentCount = 0;
-    this->frameStack.push(frame);
     frame->setManager(this);
+    this->frameStack.push(frame);
     frame->onActivate();
 }
 

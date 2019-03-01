@@ -31,8 +31,6 @@ DWORD WINAPI thread_func(LPVOID lpParameter)
 
 int main()
 {
-    OptionsManager options;
-
     // Save the old title to be restored after the application closes
     TCHAR oldTitle[MAX_PATH];
     GetConsoleTitle(oldTitle, MAX_PATH);
@@ -43,18 +41,15 @@ int main()
     SetConsoleTitle("Comet Editor");
 
     // Start the GuiManager and add the current screen buffer as the root buffer
-    GuiManager manager(options);
-    //cout << manager.getTopLeftCorner();
-    manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
-    manager.push(new GuiMainMenu());
-    //manager.push(new GuiEditor());
-    //manager.push(new GuiEditor());
+    GuiManager* manager = new GuiManager();
+    manager->push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
+    manager->push(new GuiMainMenu());
 
     // Start animation worker thread
-    CreateThread(nullptr, 0, thread_func, &manager, 0, nullptr);
+    CreateThread(nullptr, 0, thread_func, manager, 0, nullptr);
 
     // Trigger event loop
-    while(manager.handleEvents())
+    while(manager->handleEvents())
     {
 
     }

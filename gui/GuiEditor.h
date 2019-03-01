@@ -48,15 +48,14 @@ private:
     COORD selectionEnd = {-1, -1};
     COORD lastCell = {-1, -1};
     bool selectionMode = false;
-    bool firstTick = true;
 public:
     GuiEditor();
     void handleArrow(int code) override;
     void handleInput(int code) override;
     void handleCtrl(int code) override;
     void handleMouse(MOUSE_EVENT_RECORD m) override;
-    void handleAnimationFrame(unsigned long frame) override;
     void onResize() override;
+    void onActivate() override;
 };
 
 

@@ -41,6 +41,8 @@ protected:
 
     void printUnderHeader(CHAR_INFO* data, short yPos);
     void printUnderOptions(CHAR_INFO* data, short yPos);
+    void printUnderHeader(CHAR_INFO* data, short yPos, short height);
+    void printUnderOptions(CHAR_INFO* data, short yPos, short height);
 public:
     void setup(string* header, int headerLength, int headerHeight, string* options, int optionsLength, short spaceAfterHeader, short spaceAfterOptions);
     void handleArrow(int code) override;

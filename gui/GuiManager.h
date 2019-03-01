@@ -19,11 +19,11 @@ private:
     LinkedList<GuiFrame*> frameStack;
     unsigned long currentCount = 0;
     HANDLE inputHandle;
-    OptionsManager options;
+
 public:
-    GuiManager(OptionsManager options);
+    GuiManager();
     ~GuiManager();
-    OptionsManager getOptions();
+    OptionsManager* options = nullptr;
 
     void push(GuiFrame* frame);
     void pop();

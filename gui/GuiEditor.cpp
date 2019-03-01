@@ -4,6 +4,7 @@
 
 #include <afxres.h>
 #include "GuiEditor.h"
+#include "GuiEditorMenu.h"
 
 GuiEditor::GuiEditor()
 {
@@ -20,8 +21,6 @@ GuiEditor::GuiEditor()
 
     header = "[Comet Editor]";
     footer = "[Esc \xAF Menu]";
-
-    completeRender();
 }
 
 void GuiEditor::onResize()
@@ -54,16 +53,16 @@ void GuiEditor::completeRender()
     // Clear the buffer
     DWORD numChars;
     FillConsoleOutputCharacter(screenBuffer, ' ', borderXSize * borderYSize, {0, 0}, &numChars);
-    FillConsoleOutputAttribute(screenBuffer, manager->getOptions().getTextColor(), borderXSize * borderYSize, {0, 0}, &numChars);
+    FillConsoleOutputAttribute(screenBuffer, manager->options->getTextColor(), borderXSize * borderYSize, {0, 0}, &numChars);
 
     // Draw the borders
     drawBorders(borderXSize, borderYSize);
 
     // Draw the header and footer
     short headerPos = (borderXSize / 2) - (header.length() / 2);
-    writeString(headerPos, 0, header);
+    writeString(headerPos, 0, header, manager->options->getBorderColor());
     short footerPos = (borderXSize / 2) - (footer.length() / 2);
-    writeString(footerPos, borderYSize - 1, footer);
+    writeString(footerPos, borderYSize - 1, footer, manager->options->getBorderColor());
 
     // Iterate through, drawing the lineas we go
     short lineLength = borderXSize - (leftMargin * 2);
@@ -86,7 +85,7 @@ void GuiEditor::completeRender()
             {
                 line[i].Char.AsciiChar = ' ';
             }
-            line[i].Attributes = manager->getOptions().getTextColor();
+            line[i].Attributes = manager->options->getTextColor();
         }
 
         // Write the line
@@ -112,27 +111,27 @@ void GuiEditor::drawBorders(short newX, short newY)
     CHAR_INFO horiz[newX];
     for(int i = 1; i < newX - 1; i++)
     {
-        horiz[i].Attributes = manager->getOptions().getBorderColor();
-        horiz[i].Char.AsciiChar = manager->getOptions().getHorizontal();
+        horiz[i].Attributes = manager->options->getBorderColor();
+        horiz[i].Char.AsciiChar = manager->options->getHorizontal();
     }
-    horiz[0].Attributes = horiz[newX - 1].Attributes = manager->getOptions().getBorderColor();
+    horiz[0].Attributes = horiz[newX - 1].Attributes = manager->options->getBorderColor();
 
     // Write with the top corners
-    horiz[0].Char.AsciiChar = manager->getOptions().getTopLeftCorner();
-    horiz[newX - 1].Char.AsciiChar = manager->getOptions().getTopRightCorner();
+    horiz[0].Char.AsciiChar = manager->options->getTopLeftCorner();
+    horiz[newX - 1].Char.AsciiChar = manager->options->getTopRightCorner();
     writeOutput(0, 0, horiz, newX, 1);
 
     // Write with the bottom corners
-    horiz[0].Char.AsciiChar = manager->getOptions().getBottomLeftCorner();
-    horiz[newX - 1].Char.AsciiChar = manager->getOptions().getBottomRightCorner();
+    horiz[0].Char.AsciiChar = manager->options->getBottomLeftCorner();
+    horiz[newX - 1].Char.AsciiChar = manager->options->getBottomRightCorner();
     writeOutput(0, newY - 1, horiz, newX, 1);
 
     // Left and right border
     CHAR_INFO vert[newY - 2];
     for(int i = 0; i < newY - 2; i++)
     {
-        vert[i].Attributes = manager->getOptions().getBorderColor();
-        vert[i].Char.AsciiChar = manager->getOptions().getVertical();
+        vert[i].Attributes = manager->options->getBorderColor();
+        vert[i].Char.AsciiChar = manager->options->getVertical();
     }
     writeOutput(0, 1, vert, 1, newY - 2);
     writeOutput(newX - 1, 1, vert, 1, newY - 2);
@@ -151,7 +150,7 @@ void GuiEditor::resizeBuffer(short newX, short newY)
     for(int i = 0; i < borderYSize; i++)
     {
         rightWipe[i].Char.AsciiChar = ' ';
-        rightWipe[i].Attributes = manager->getOptions().getTextColor();
+        rightWipe[i].Attributes = manager->options->getTextColor();
     }
     writeOutput(borderXSize - 1, 0, rightWipe, 1, borderYSize);
 
@@ -159,7 +158,7 @@ void GuiEditor::resizeBuffer(short newX, short newY)
     for(int i = 0; i < borderXSize; i++)
     {
         bottomWipe[i].Char.AsciiChar = ' ';
-        bottomWipe[i].Attributes = manager->getOptions().getTextColor();
+        bottomWipe[i].Attributes = manager->options->getTextColor();
     }
     writeOutput(0, borderYSize - 1, bottomWipe, borderXSize, 1);
 
@@ -334,7 +333,7 @@ void GuiEditor::updateSelection(COORD start, COORD old, COORD current)
             }
             else
             {
-                data[x] = manager->getOptions().getTextColor();
+                data[x] = manager->options->getTextColor();
             }
         }
 
@@ -564,6 +563,10 @@ void GuiEditor::handleInput(int code)
             updateCursorPos();
         }
     }
+    else if(code == KEY_ESC)
+    {
+        manager->push(new GuiEditorMenu());
+    }
     // Only print valid ascii characters (>= 32)
     else if(code >= 32)
     {
@@ -584,7 +587,7 @@ void GuiEditor::handleInput(int code)
             // If it's at the end of the line, add it
             CHAR_INFO ch[1];
             ch[0].Char.AsciiChar = code;
-            ch[0].Attributes = manager->getOptions().getTextColor();
+            ch[0].Attributes = manager->options->getTextColor();
             writeOutput(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, ch, 1, 1);
         }
         currentLine->add(cursorRelativeX, code);
@@ -711,11 +714,9 @@ void GuiEditor::handleArrow(int code)
     }
 }
 
-void GuiEditor::handleAnimationFrame(unsigned long frame)
+void GuiEditor::onActivate()
 {
-    if(firstTick)
-    {
-        firstTick = false;
-        completeRender();
-    }
+    // Set this as the active screen buffer and perform a complete re-render (in case any settings have been changed)
+    SetConsoleActiveScreenBuffer(this->screenBuffer);
+    completeRender();
 }

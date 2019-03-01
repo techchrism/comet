@@ -19,7 +19,7 @@ class GuiStarScreen : public GuiFrame
 private:
     // Volatile flags to avoid animating when deallocating memory
     volatile bool isAnimating = false;
-    volatile bool isCleaning = false;
+    volatile bool isCleaning = true;
 
     LinkedList<GuiStar*> stars;
     GuiComet* comets[COMETS_COUNT];

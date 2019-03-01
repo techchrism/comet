@@ -10,12 +10,18 @@
 
 class GuiEditorMenu : public GuiVerticalMenu
 {
+private:
+    int test = 1;
+
+    void drawPreview();
+    void changeSelected(int selected, int by);
 protected:
     void onRender() override;
 public:
     GuiEditorMenu();
     void onOptionSelect(string name, int pos) override;
     void onOptionCycle(string name, int pos, int code) override;
+    void onActivate() override;
 };
 
 

@@ -78,17 +78,20 @@ Options OptionsManager::getOptions()
 
 void OptionsManager::setOptions(Options options)
 {
-    this->currentOptions = options;
+    this->currentOptions.borderColor = options.borderColor;
+    this->currentOptions.borderType = options.borderType;
+    this->currentOptions.cornerType = options.cornerType;
+    this->currentOptions.textColor = options.textColor;
     this->saveToFile();
 }
 
 unsigned char OptionsManager::getTopLeftCorner()
 {
-    if(currentOptions.cornerType == 1)
+    if(this->currentOptions.cornerType == 1)
     {
         return (unsigned char) 201;
     }
-    else if(currentOptions.cornerType == 2)
+    else if(this->currentOptions.cornerType == 2)
     {
         return (unsigned char) 218;
     }

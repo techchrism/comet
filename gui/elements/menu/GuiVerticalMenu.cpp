@@ -102,17 +102,27 @@ void GuiVerticalMenu::renderOptions()
 
 void GuiVerticalMenu::printUnderHeader(CHAR_INFO *data, short yPos)
 {
-    SMALL_RECT box = getBox();
-    short boxGap = box.Right - box.Left;
-    writeOutput(box.Left, posAfterHeader + yPos, data, boxGap, 1);
-    delete data;
+    this->printUnderHeader(data, yPos, 1);
 }
 
 void GuiVerticalMenu::printUnderOptions(CHAR_INFO *data, short yPos)
 {
+    this->printUnderOptions(data, yPos, 1);
+}
+
+void GuiVerticalMenu::printUnderHeader(CHAR_INFO *data, short yPos, short height)
+{
     SMALL_RECT box = getBox();
     short boxGap = box.Right - box.Left;
-    writeOutput(box.Left, posAfterOptions + yPos, data, boxGap, 1);
+    writeOutput(box.Left, posAfterHeader + yPos, data, boxGap, height);
+    delete data;
+}
+
+void GuiVerticalMenu::printUnderOptions(CHAR_INFO *data, short yPos, short height)
+{
+    SMALL_RECT box = getBox();
+    short boxGap = box.Right - box.Left;
+    writeOutput(box.Left, posAfterOptions + yPos, data, boxGap, height);
     delete data;
 }
 
@@ -170,5 +180,9 @@ void GuiVerticalMenu::handleInput(int code)
     if(code == KEY_ENTER)
     {
         onOptionSelect(options[selectedOption], selectedOption);
+    }
+    else if(code == KEY_ESC)
+    {
+        manager->pop();
     }
 }

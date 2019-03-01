@@ -89,6 +89,7 @@ void GuiStarScreen::render()
     }
 
     childRender();
+    isCleaning = false;
 }
 
 void GuiStarScreen::onResize()
@@ -122,7 +123,7 @@ void GuiStarScreen::handleAnimationFrame(unsigned long count)
     }
 
     // Animate the stars
-    LinkedListNode<GuiStar*>* current = stars.getStart();
+    LinkedListNode<GuiStar *> *current = stars.getStart();
     while(!isCleaning && current != nullptr)
     {
         current->getData()->toggleChance();
