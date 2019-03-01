@@ -41,6 +41,9 @@ public:
     };
     virtual void onResize() {};
 
+    // Designed for the editor to override
+    virtual void saveState(){};
+
     void setManager(GuiManager* manager);
     HANDLE getBuffer();
 };

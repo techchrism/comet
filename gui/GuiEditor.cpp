@@ -54,7 +54,7 @@ void GuiEditor::completeRender()
     // Clear the buffer
     DWORD numChars;
     FillConsoleOutputCharacter(screenBuffer, ' ', borderXSize * borderYSize, {0, 0}, &numChars);
-    FillConsoleOutputAttribute(screenBuffer, WHITE_TEXT, borderXSize * borderYSize, {0, 0}, &numChars);
+    FillConsoleOutputAttribute(screenBuffer, manager->getOptions().getTextColor(), borderXSize * borderYSize, {0, 0}, &numChars);
 
     // Draw the borders
     drawBorders(borderXSize, borderYSize);
@@ -86,7 +86,7 @@ void GuiEditor::completeRender()
             {
                 line[i].Char.AsciiChar = ' ';
             }
-            line[i].Attributes = WHITE_TEXT;
+            line[i].Attributes = manager->getOptions().getTextColor();
         }
 
         // Write the line
@@ -112,27 +112,27 @@ void GuiEditor::drawBorders(short newX, short newY)
     CHAR_INFO horiz[newX];
     for(int i = 1; i < newX - 1; i++)
     {
-        horiz[i].Attributes = WHITE_TEXT;
-        horiz[i].Char.AsciiChar = (unsigned char) 205;
+        horiz[i].Attributes = manager->getOptions().getBorderColor();
+        horiz[i].Char.AsciiChar = manager->getOptions().getHorizontal();
     }
-    horiz[0].Attributes = horiz[newX - 1].Attributes = WHITE_TEXT;
+    horiz[0].Attributes = horiz[newX - 1].Attributes = manager->getOptions().getBorderColor();
 
     // Write with the top corners
-    horiz[0].Char.AsciiChar = (unsigned char) 201;
-    horiz[newX - 1].Char.AsciiChar = (unsigned char) 187;
+    horiz[0].Char.AsciiChar = manager->getOptions().getTopLeftCorner();
+    horiz[newX - 1].Char.AsciiChar = manager->getOptions().getTopRightCorner();
     writeOutput(0, 0, horiz, newX, 1);
 
     // Write with the bottom corners
-    horiz[0].Char.AsciiChar = (unsigned char) 200;
-    horiz[newX - 1].Char.AsciiChar = (unsigned char) 188;
+    horiz[0].Char.AsciiChar = manager->getOptions().getBottomLeftCorner();
+    horiz[newX - 1].Char.AsciiChar = manager->getOptions().getBottomRightCorner();
     writeOutput(0, newY - 1, horiz, newX, 1);
 
     // Left and right border
     CHAR_INFO vert[newY - 2];
     for(int i = 0; i < newY - 2; i++)
     {
-        vert[i].Attributes = WHITE_TEXT;
-        vert[i].Char.AsciiChar = (unsigned char) 186;
+        vert[i].Attributes = manager->getOptions().getBorderColor();
+        vert[i].Char.AsciiChar = manager->getOptions().getVertical();
     }
     writeOutput(0, 1, vert, 1, newY - 2);
     writeOutput(newX - 1, 1, vert, 1, newY - 2);
@@ -151,7 +151,7 @@ void GuiEditor::resizeBuffer(short newX, short newY)
     for(int i = 0; i < borderYSize; i++)
     {
         rightWipe[i].Char.AsciiChar = ' ';
-        rightWipe[i].Attributes = WHITE_TEXT;
+        rightWipe[i].Attributes = manager->getOptions().getTextColor();
     }
     writeOutput(borderXSize - 1, 0, rightWipe, 1, borderYSize);
 
@@ -159,7 +159,7 @@ void GuiEditor::resizeBuffer(short newX, short newY)
     for(int i = 0; i < borderXSize; i++)
     {
         bottomWipe[i].Char.AsciiChar = ' ';
-        bottomWipe[i].Attributes = WHITE_TEXT;
+        bottomWipe[i].Attributes = manager->getOptions().getTextColor();
     }
     writeOutput(0, borderYSize - 1, bottomWipe, borderXSize, 1);
 
@@ -334,7 +334,7 @@ void GuiEditor::updateSelection(COORD start, COORD old, COORD current)
             }
             else
             {
-                data[x] = WHITE_TEXT;
+                data[x] = manager->getOptions().getTextColor();
             }
         }
 
@@ -584,7 +584,7 @@ void GuiEditor::handleInput(int code)
             // If it's at the end of the line, add it
             CHAR_INFO ch[1];
             ch[0].Char.AsciiChar = code;
-            ch[0].Attributes = WHITE_TEXT;
+            ch[0].Attributes = manager->getOptions().getTextColor();
             writeOutput(leftMargin + cursorRelativeX, topMargin + cursorRelativeY, ch, 1, 1);
         }
         currentLine->add(cursorRelativeX, code);
@@ -708,5 +708,14 @@ void GuiEditor::handleArrow(int code)
             updateCursorPos();
             break;
         }
+    }
+}
+
+void GuiEditor::handleAnimationFrame(unsigned long frame)
+{
+    if(firstTick)
+    {
+        firstTick = false;
+        completeRender();
     }
 }

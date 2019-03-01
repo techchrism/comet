@@ -4,9 +4,12 @@
 
 #include <afxres.h>
 #include "GuiManager.h"
+#include "../internal/OptionsManager.h"
 
-GuiManager::GuiManager()
+GuiManager::GuiManager(OptionsManager options)
 {
+    this->options = options;
+
     inputHandle = GetStdHandle(STD_INPUT_HANDLE);
 
     // Disable the windows "Quick Edit Mode" that creates a selection box when the mouse is clicked and dragged
@@ -19,6 +22,11 @@ GuiManager::GuiManager()
 GuiManager::~GuiManager()
 {
     this->frameStack.removeAll();
+}
+
+OptionsManager GuiManager::getOptions()
+{
+    return options;
 }
 
 // Push and activate the new frame

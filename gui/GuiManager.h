@@ -6,6 +6,7 @@
 #define THEEDITOR_GUIMANAGER_H
 
 #include "../internal/LinkedList.h"
+#include "../internal/OptionsManager.h"
 #include "elements/components/GuiFrame.h"
 
 // Forward definition is needed to resolve mutual dependencies
@@ -18,9 +19,11 @@ private:
     LinkedList<GuiFrame*> frameStack;
     unsigned long currentCount = 0;
     HANDLE inputHandle;
+    OptionsManager options;
 public:
-    GuiManager();
+    GuiManager(OptionsManager options);
     ~GuiManager();
+    OptionsManager getOptions();
 
     void push(GuiFrame* frame);
     void pop();

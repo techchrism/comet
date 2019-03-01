@@ -3,11 +3,11 @@
 #include <conio.h>
 #include <time.h>
 
-#include "internal/OptionsManager.h"
 #include "gui/GuiManager.h"
 #include "gui/GuiMainMenu.h"
 #include "gui/GuiEditor.h"
 #include "gui/GuiBase.h"
+#include "internal/OptionsManager.h"
 
 using namespace std;
 
@@ -31,7 +31,7 @@ DWORD WINAPI thread_func(LPVOID lpParameter)
 
 int main()
 {
-    //OptionsManager options;
+    OptionsManager options;
 
     // Save the old title to be restored after the application closes
     TCHAR oldTitle[MAX_PATH];
@@ -43,9 +43,11 @@ int main()
     SetConsoleTitle("Comet Editor");
 
     // Start the GuiManager and add the current screen buffer as the root buffer
-    GuiManager manager;
+    GuiManager manager(options);
+    //cout << manager.getTopLeftCorner();
     manager.push(new GuiBase(GetStdHandle(STD_OUTPUT_HANDLE)));
     manager.push(new GuiMainMenu());
+    //manager.push(new GuiEditor());
     //manager.push(new GuiEditor());
 
     // Start animation worker thread

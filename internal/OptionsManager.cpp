@@ -13,7 +13,6 @@ OptionsManager::OptionsManager()
     this->defaultOptions = Options();
     this->defaultOptions.textColor = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
     this->defaultOptions.borderColor = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-    this->defaultOptions.cornerColor = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
     this->defaultOptions.borderType = 1;
     this->defaultOptions.cornerType = 1;
 
@@ -49,10 +48,6 @@ void OptionsManager::loadFromFile()
             {
                 this->currentOptions.cornerType = value;
             }
-            else if(name == "corner-color")
-            {
-                this->currentOptions.cornerColor = value;
-            }
             else if(name == "border-color")
             {
                 this->currentOptions.borderColor = value;
@@ -72,7 +67,6 @@ void OptionsManager::saveToFile()
     configFile << "border-type " << this->currentOptions.borderType << endl;
     configFile << "corner-type " << this->currentOptions.cornerType << endl;
     configFile << "border-color " << this->currentOptions.borderColor << endl;
-    configFile << "corner-color " << this->currentOptions.cornerColor << endl;
     configFile << "text-color " << this->currentOptions.textColor << endl;
     configFile.close();
 }
@@ -86,4 +80,110 @@ void OptionsManager::setOptions(Options options)
 {
     this->currentOptions = options;
     this->saveToFile();
+}
+
+unsigned char OptionsManager::getTopLeftCorner()
+{
+    if(currentOptions.cornerType == 1)
+    {
+        return (unsigned char) 201;
+    }
+    else if(currentOptions.cornerType == 2)
+    {
+        return (unsigned char) 218;
+    }
+    else
+    {
+        return '+';
+    }
+}
+
+unsigned char OptionsManager::getTopRightCorner()
+{
+    if(currentOptions.cornerType == 1)
+    {
+        return (unsigned char) 187;
+    }
+    else if(currentOptions.cornerType == 2)
+    {
+        return (unsigned char) 191;
+    }
+    else
+    {
+        return '+';
+    }
+}
+
+unsigned char OptionsManager::getBottomLeftCorner()
+{
+    if(currentOptions.cornerType == 1)
+    {
+        return (unsigned char) 200;
+    }
+    else if(currentOptions.cornerType == 2)
+    {
+        return (unsigned char) 192;
+    }
+    else
+    {
+        return '+';
+    }
+}
+
+unsigned char OptionsManager::getBottomRightCorner()
+{
+    if(currentOptions.cornerType == 1)
+    {
+        return (unsigned char) 188;
+    }
+    else if(currentOptions.cornerType == 2)
+    {
+        return (unsigned char) 217;
+    }
+    else
+    {
+        return '+';
+    }
+}
+
+unsigned char OptionsManager::getHorizontal()
+{
+    if(currentOptions.borderType == 1)
+    {
+        return (unsigned char) 205;
+    }
+    else if(currentOptions.borderType == 2)
+    {
+        return (unsigned char) 196;
+    }
+    else
+    {
+        return (unsigned char) 219;
+    }
+}
+
+unsigned char OptionsManager::getVertical()
+{
+    if(currentOptions.borderType == 1)
+    {
+        return (unsigned char) 186;
+    }
+    else if(currentOptions.borderType == 2)
+    {
+        return (unsigned char) 179;
+    }
+    else
+    {
+        return (unsigned char) 219;
+    }
+}
+
+WORD OptionsManager::getBorderColor()
+{
+    return currentOptions.borderColor;
+}
+
+WORD OptionsManager::getTextColor()
+{
+    return currentOptions.textColor;
 }

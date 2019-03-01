@@ -10,7 +10,6 @@ struct Options
     short borderType;
     short cornerType;
 
-    short cornerColor;
     short borderColor;
     short textColor;
 };
