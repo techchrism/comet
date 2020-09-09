@@ -46,11 +46,10 @@ jobs:
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
-        working-directory: ${{runner.workspace}}/build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Comet.exe
+          asset_path: ${{runner.workspace}}/build/Comet.exe
           asset_name: Comet.exe
           asset_content_type: application/vnd.microsoft.portable-executable
