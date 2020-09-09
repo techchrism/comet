@@ -5,9 +5,7 @@
 
 #include "gui/GuiManager.h"
 #include "gui/GuiMainMenu.h"
-#include "gui/GuiEditor.h"
 #include "gui/GuiBase.h"
-#include "internal/OptionsManager.h"
 
 using namespace std;
 
